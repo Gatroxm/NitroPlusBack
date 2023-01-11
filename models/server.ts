@@ -1,6 +1,6 @@
 import express, { Application } from "express";
 import cors from "cors"
-
+/* Conexion */
 import db from "../db/connection";
 
 import pilotRouter from '../routes/piloto';
