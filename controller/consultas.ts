@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 import { QueryTypes } from "sequelize";
 import tb_calendario from "../models/tb_calendario";
 import tb_pilotos from "../models/tb_pilotos";
+import tb_reportes_comisarios from "../models/tb_reportes_comisarios";
 import tb_tabla_puntos from "../models/tb_tabla_puntos";
 
 export const totalParticipaciones = async (req: Request, res: Response) => {
@@ -80,11 +81,13 @@ export const getProximasCarreras = async (req: Request, res: Response) => {
         if(top5Carreras.length > 0){
             return res.json({
                 ok:true,
+                carreras:true,
                 top5Carreras
             })
         }else {
             return res.json({
                 ok:true,
+                carreras:false,
                 msg: 'No cuentas con carreras programadas'
             })
         }
@@ -113,11 +116,21 @@ export const getUltimosResultados = async (req: Request, res: Response) => {
         INNER JOIN tb_tabla_puntos AS tb_tabla_puntos_1 ON tb_resultados.FK_ID_PUNTOS_CAT = tb_tabla_puntos_1.PK_ID_PUNTOS
         WHERE (((tb_resultados.FK_ID_PILOTO)=${id}))
         ORDER BY tb_calendario.FECHA DESC LIMIT 10;`;
-        const resultados = await tb_calendario.sequelize?.query(query,{ type: QueryTypes.SELECT });
-        return res.json({
-            ok:true,
-            resultados
-        })
+        const ultimosResultados:any = await tb_calendario.sequelize?.query(query,{ type: QueryTypes.SELECT });
+        if(ultimosResultados.length > 0){
+            return res.json({
+                ok:true,
+                resultados:true,
+                ultimosResultados
+            })
+        }else {
+            return res.json({
+                ok:true,
+                resultados:false,
+                msg: 'No cuentas con Reportes'
+            })
+        }
+        
     } catch (error) {
         return res.status(500).json({
             ok:false,
@@ -126,3 +139,66 @@ export const getUltimosResultados = async (req: Request, res: Response) => {
     }
 }
 
+export const gteUltimosReportesRecibidos = async (req:Request, res:Response) => {
+    const {id} = req.params;
+    const date = new Date();
+    const query = `SELECT tb_reportes_comisarios.PK_ID_REPORTE, tb_reportes_comisarios.FECHA_REPORTE, tb_pilotos.NOMBRECORTO, tb_calendario.NOMBRE_CORTO, tb_divisiones_salas.NOMBRE_DIVISION, tb_torneos.NOMBRE_TORNEO, TB_PISTA_PRINCIPAL.URL_BANDERA, TB_ESTADO_REPORTES.NOMBRE_ESTADO_REPORTES, tb_reportes_comisarios.PUNTOS_PENALIZACION, tb_reportes_comisarios.SEGUNDOS_PENALIZACION, tb_reportes_comisarios.POS_PENALIZACION FROM ((((((tb_reportes_comisarios INNER JOIN tb_calendario ON tb_reportes_comisarios.FK_ID_EVENTO = tb_calendario.PK_ID_CALENDARIO) INNER JOIN tb_pistas ON tb_calendario.FK_ID_PISTA = tb_pistas.PK_ID_PISTA) INNER JOIN tb_divisiones_salas ON tb_calendario.FK_DIVISION_SALA = tb_divisiones_salas.PK_DIVISION_SALA) INNER JOIN tb_torneos ON tb_divisiones_salas.FK_TORNEO = tb_torneos.PK_TORNEO) INNER JOIN TB_PISTA_PRINCIPAL ON tb_pistas.FK_PISTA_PRINCIPAL = TB_PISTA_PRINCIPAL.PK_ID_PISTA) INNER JOIN TB_ESTADO_REPORTES ON tb_reportes_comisarios.FK_ESTADO_REPORTE = TB_ESTADO_REPORTES.PK_ESTADO_REPORTE) INNER JOIN tb_pilotos ON tb_reportes_comisarios.FK_DENUNCIANTE = tb_pilotos.PK_ID_PILOTO WHERE (((tb_reportes_comisarios.FECHA_REPORTE)>="${ SumaRestaDias(date, -7)}")  AND ((tb_reportes_comisarios.FK_DENUNCIADO)=${id})) ORDER BY tb_reportes_comisarios.FECHA_REPORTE DESC;`
+    try {
+        const ultimosReportesRecibidos:any = await tb_reportes_comisarios.sequelize?.query(query, { type: QueryTypes.SELECT });
+        if(ultimosReportesRecibidos.length > 0){
+            return res.json({
+                ok:true,
+                reportes:true,
+                ultimosReportesRecibidos
+            })
+        }else {
+            return res.json({
+                ok:true,
+                reportes:false,
+                msg: 'No cuentas con Reportes'
+            })
+        }
+        
+    }  catch (error) {
+        return res.status(500).json({
+            ok:false,
+            error: error,
+        });
+    }
+
+}
+
+export const getUltimosReportesEnviados = async (req: Request, res: Response) => {
+    const {id} = req.params;
+    const date = new Date();
+    const query = `SELECT tb_reportes_comisarios.PK_ID_REPORTE, tb_reportes_comisarios.FECHA_REPORTE, tb_pilotos.NOMBRECORTO, tb_calendario.NOMBRE_CORTO, tb_divisiones_salas.NOMBRE_DIVISION, tb_torneos.NOMBRE_TORNEO, TB_PISTA_PRINCIPAL.URL_BANDERA, TB_ESTADO_REPORTES.NOMBRE_ESTADO_REPORTES, tb_reportes_comisarios.PUNTOS_PENALIZACION, tb_reportes_comisarios.SEGUNDOS_PENALIZACION, tb_reportes_comisarios.POS_PENALIZACION FROM ((((((tb_reportes_comisarios INNER JOIN tb_calendario ON tb_reportes_comisarios.FK_ID_EVENTO = tb_calendario.PK_ID_CALENDARIO) INNER JOIN tb_pistas ON tb_calendario.FK_ID_PISTA = tb_pistas.PK_ID_PISTA) INNER JOIN tb_divisiones_salas ON tb_calendario.FK_DIVISION_SALA = tb_divisiones_salas.PK_DIVISION_SALA) INNER JOIN tb_torneos ON tb_divisiones_salas.FK_TORNEO = tb_torneos.PK_TORNEO) INNER JOIN TB_PISTA_PRINCIPAL ON tb_pistas.FK_PISTA_PRINCIPAL = TB_PISTA_PRINCIPAL.PK_ID_PISTA) INNER JOIN TB_ESTADO_REPORTES ON tb_reportes_comisarios.FK_ESTADO_REPORTE = TB_ESTADO_REPORTES.PK_ESTADO_REPORTE) INNER JOIN tb_pilotos ON tb_reportes_comisarios.FK_DENUNCIADO = tb_pilotos.PK_ID_PILOTO WHERE (((tb_reportes_comisarios.FECHA_REPORTE)>="${SumaRestaDias(date, -7)}") AND ((tb_reportes_comisarios.FK_DENUNCIANTE)=${id}))
+    ORDER BY tb_reportes_comisarios.FECHA_REPORTE DESC;`
+    try {
+        const ultimosReportesEnviados:any = await tb_reportes_comisarios.sequelize?.query(query, { type: QueryTypes.SELECT });
+        if(ultimosReportesEnviados.length > 0){
+            return res.json({
+                ok:true,
+                reportes:true,
+                ultimosReportesEnviados
+            })
+        }else {
+            return res.json({
+                ok:true,
+                reportes:false,
+                msg: 'No cuentas con Reportes'
+            })
+        }
+        
+    }  catch (error) {
+        return res.status(500).json({
+            ok:false,
+            error: error,
+        });
+    }
+
+}
+
+function SumaRestaDias(fecha:Date, dias:number) {
+    fecha.setDate(fecha.getDate() + dias);
+    return fecha.getFullYear()+"/"+(fecha.getMonth()+1)+"/"+fecha.getDate();
+  }

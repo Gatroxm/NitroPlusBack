@@ -44,3 +44,30 @@ export const getPiloto = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const LogIn = async (req: Request, res: Response) => {
+  const {email, password} = req.body;
+  try {
+    const piloto = await tb_pilotos.findAll({
+      where: {useremail: email, password: password}
+    });
+    if(piloto.length >0){
+      return res.json({
+        ok: true,
+        piloto: piloto[0],
+      });
+    } else {
+      res.status(404).json({
+        ok: false,
+        msg: `error al ingresar`,
+      });
+    }
+    
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+}

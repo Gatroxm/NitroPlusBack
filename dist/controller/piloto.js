@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPiloto = exports.getAllPilotos = void 0;
+exports.LogIn = exports.getPiloto = exports.getAllPilotos = void 0;
 const tb_pilotos_1 = __importDefault(require("../models/tb_pilotos"));
 const getAllPilotos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const desde = Number(req.query.desde) || 0;
@@ -60,4 +60,32 @@ const getPiloto = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getPiloto = getPiloto;
+const LogIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password } = req.body;
+    try {
+        const piloto = yield tb_pilotos_1.default.findAll({
+            where: { useremail: email, password: password }
+        });
+        if (piloto.length > 0) {
+            return res.json({
+                ok: true,
+                piloto: piloto[0],
+            });
+        }
+        else {
+            res.status(404).json({
+                ok: false,
+                msg: `error al ingresar`,
+            });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.LogIn = LogIn;
 //# sourceMappingURL=piloto.js.map

@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUltimosResultados = exports.getProximasCarreras = exports.nombreCortoPiloto = exports.totalVictorias = exports.totalParticipaciones = void 0;
+exports.getUltimosReportesEnviados = exports.gteUltimosReportesRecibidos = exports.getUltimosResultados = exports.getProximasCarreras = exports.nombreCortoPiloto = exports.totalVictorias = exports.totalParticipaciones = void 0;
 const sequelize_1 = require("sequelize");
 const tb_calendario_1 = __importDefault(require("../models/tb_calendario"));
 const tb_pilotos_1 = __importDefault(require("../models/tb_pilotos"));
+const tb_reportes_comisarios_1 = __importDefault(require("../models/tb_reportes_comisarios"));
 const tb_tabla_puntos_1 = __importDefault(require("../models/tb_tabla_puntos"));
 const totalParticipaciones = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -91,12 +92,14 @@ const getProximasCarreras = (req, res) => __awaiter(void 0, void 0, void 0, func
         if (top5Carreras.length > 0) {
             return res.json({
                 ok: true,
+                carreras: true,
                 top5Carreras
             });
         }
         else {
             return res.json({
                 ok: true,
+                carreras: false,
                 msg: 'No cuentas con carreras programadas'
             });
         }
@@ -125,11 +128,21 @@ const getUltimosResultados = (req, res) => __awaiter(void 0, void 0, void 0, fun
         INNER JOIN tb_tabla_puntos AS tb_tabla_puntos_1 ON tb_resultados.FK_ID_PUNTOS_CAT = tb_tabla_puntos_1.PK_ID_PUNTOS
         WHERE (((tb_resultados.FK_ID_PILOTO)=${id}))
         ORDER BY tb_calendario.FECHA DESC LIMIT 10;`;
-        const resultados = yield ((_e = tb_calendario_1.default.sequelize) === null || _e === void 0 ? void 0 : _e.query(query, { type: sequelize_1.QueryTypes.SELECT }));
-        return res.json({
-            ok: true,
-            resultados
-        });
+        const ultimosResultados = yield ((_e = tb_calendario_1.default.sequelize) === null || _e === void 0 ? void 0 : _e.query(query, { type: sequelize_1.QueryTypes.SELECT }));
+        if (ultimosResultados.length > 0) {
+            return res.json({
+                ok: true,
+                resultados: true,
+                ultimosResultados
+            });
+        }
+        else {
+            return res.json({
+                ok: true,
+                resultados: false,
+                msg: 'No cuentas con Reportes'
+            });
+        }
     }
     catch (error) {
         return res.status(500).json({
@@ -139,4 +152,69 @@ const getUltimosResultados = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.getUltimosResultados = getUltimosResultados;
+const gteUltimosReportesRecibidos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _f;
+    const { id } = req.params;
+    const date = new Date();
+    const query = `SELECT tb_reportes_comisarios.PK_ID_REPORTE, tb_reportes_comisarios.FECHA_REPORTE, tb_pilotos.NOMBRECORTO, tb_calendario.NOMBRE_CORTO, tb_divisiones_salas.NOMBRE_DIVISION, tb_torneos.NOMBRE_TORNEO, TB_PISTA_PRINCIPAL.URL_BANDERA, TB_ESTADO_REPORTES.NOMBRE_ESTADO_REPORTES, tb_reportes_comisarios.PUNTOS_PENALIZACION, tb_reportes_comisarios.SEGUNDOS_PENALIZACION, tb_reportes_comisarios.POS_PENALIZACION FROM ((((((tb_reportes_comisarios INNER JOIN tb_calendario ON tb_reportes_comisarios.FK_ID_EVENTO = tb_calendario.PK_ID_CALENDARIO) INNER JOIN tb_pistas ON tb_calendario.FK_ID_PISTA = tb_pistas.PK_ID_PISTA) INNER JOIN tb_divisiones_salas ON tb_calendario.FK_DIVISION_SALA = tb_divisiones_salas.PK_DIVISION_SALA) INNER JOIN tb_torneos ON tb_divisiones_salas.FK_TORNEO = tb_torneos.PK_TORNEO) INNER JOIN TB_PISTA_PRINCIPAL ON tb_pistas.FK_PISTA_PRINCIPAL = TB_PISTA_PRINCIPAL.PK_ID_PISTA) INNER JOIN TB_ESTADO_REPORTES ON tb_reportes_comisarios.FK_ESTADO_REPORTE = TB_ESTADO_REPORTES.PK_ESTADO_REPORTE) INNER JOIN tb_pilotos ON tb_reportes_comisarios.FK_DENUNCIANTE = tb_pilotos.PK_ID_PILOTO WHERE (((tb_reportes_comisarios.FECHA_REPORTE)>="${SumaRestaDias(date, -7)}")  AND ((tb_reportes_comisarios.FK_DENUNCIADO)=${id})) ORDER BY tb_reportes_comisarios.FECHA_REPORTE DESC;`;
+    try {
+        const ultimosReportesRecibidos = yield ((_f = tb_reportes_comisarios_1.default.sequelize) === null || _f === void 0 ? void 0 : _f.query(query, { type: sequelize_1.QueryTypes.SELECT }));
+        if (ultimosReportesRecibidos.length > 0) {
+            return res.json({
+                ok: true,
+                reportes: true,
+                ultimosReportesRecibidos
+            });
+        }
+        else {
+            return res.json({
+                ok: true,
+                reportes: false,
+                msg: 'No cuentas con Reportes'
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.gteUltimosReportesRecibidos = gteUltimosReportesRecibidos;
+const getUltimosReportesEnviados = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _g;
+    const { id } = req.params;
+    const date = new Date();
+    const query = `SELECT tb_reportes_comisarios.PK_ID_REPORTE, tb_reportes_comisarios.FECHA_REPORTE, tb_pilotos.NOMBRECORTO, tb_calendario.NOMBRE_CORTO, tb_divisiones_salas.NOMBRE_DIVISION, tb_torneos.NOMBRE_TORNEO, TB_PISTA_PRINCIPAL.URL_BANDERA, TB_ESTADO_REPORTES.NOMBRE_ESTADO_REPORTES, tb_reportes_comisarios.PUNTOS_PENALIZACION, tb_reportes_comisarios.SEGUNDOS_PENALIZACION, tb_reportes_comisarios.POS_PENALIZACION FROM ((((((tb_reportes_comisarios INNER JOIN tb_calendario ON tb_reportes_comisarios.FK_ID_EVENTO = tb_calendario.PK_ID_CALENDARIO) INNER JOIN tb_pistas ON tb_calendario.FK_ID_PISTA = tb_pistas.PK_ID_PISTA) INNER JOIN tb_divisiones_salas ON tb_calendario.FK_DIVISION_SALA = tb_divisiones_salas.PK_DIVISION_SALA) INNER JOIN tb_torneos ON tb_divisiones_salas.FK_TORNEO = tb_torneos.PK_TORNEO) INNER JOIN TB_PISTA_PRINCIPAL ON tb_pistas.FK_PISTA_PRINCIPAL = TB_PISTA_PRINCIPAL.PK_ID_PISTA) INNER JOIN TB_ESTADO_REPORTES ON tb_reportes_comisarios.FK_ESTADO_REPORTE = TB_ESTADO_REPORTES.PK_ESTADO_REPORTE) INNER JOIN tb_pilotos ON tb_reportes_comisarios.FK_DENUNCIADO = tb_pilotos.PK_ID_PILOTO WHERE (((tb_reportes_comisarios.FECHA_REPORTE)>="${SumaRestaDias(date, -7)}") AND ((tb_reportes_comisarios.FK_DENUNCIANTE)=${id}))
+    ORDER BY tb_reportes_comisarios.FECHA_REPORTE DESC;`;
+    try {
+        const ultimosReportesEnviados = yield ((_g = tb_reportes_comisarios_1.default.sequelize) === null || _g === void 0 ? void 0 : _g.query(query, { type: sequelize_1.QueryTypes.SELECT }));
+        if (ultimosReportesEnviados.length > 0) {
+            return res.json({
+                ok: true,
+                reportes: true,
+                ultimosReportesEnviados
+            });
+        }
+        else {
+            return res.json({
+                ok: true,
+                reportes: false,
+                msg: 'No cuentas con Reportes'
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.getUltimosReportesEnviados = getUltimosReportesEnviados;
+function SumaRestaDias(fecha, dias) {
+    fecha.setDate(fecha.getDate() + dias);
+    return fecha.getFullYear() + "/" + (fecha.getMonth() + 1) + "/" + fecha.getDate();
+}
 //# sourceMappingURL=consultas.js.map

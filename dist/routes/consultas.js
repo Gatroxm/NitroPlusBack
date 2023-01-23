@@ -10,5 +10,7 @@ routerConsultas.get('/victorias/:id', consultas_1.totalVictorias);
 routerConsultas.get('/shortNamePilot/:id', consultas_1.nombreCortoPiloto);
 routerConsultas.get('/ProximasCarreras/:id', consultas_1.getProximasCarreras);
 routerConsultas.get('/UltimosResultados/:id', consultas_1.getUltimosResultados);
+routerConsultas.get('/UltimosReportesResibidos/:id', consultas_1.gteUltimosReportesRecibidos);
+routerConsultas.get('/UltimosReportesEnviados/:id', consultas_1.getUltimosReportesEnviados);
 exports.default = routerConsultas;
 //# sourceMappingURL=consultas.js.map
