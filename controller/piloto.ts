@@ -76,21 +76,27 @@ export const LogIn = async (req: Request, res: Response) => {
 
 export const getPilotosDesActivados = async (req: Request, res: Response) => {
   const param = req.query.param;
+  let where:any = {
+    ACTIVO: 0,
+    [Op.or]:[
+      {
+        NOMBRECORTO: {
+          [Op.like]: `${param}%`
+        }
+      }
+    ]
+  }
+  if(param === '' || param === undefined) {
+    where = {
+      ACTIVO: 0
+    }
+  }
   console.log(req.query)
   try {
     
     const pilotos = await tb_pilotos.findAll({ 
       attributes: ['PK_ID_PILOTO', 'NOMBRECORTO', 'DISCORD_ID', 'zona_horaria', 'whatsapp', 'ACTIVO'],
-      where: {
-        ACTIVO: 0,
-        [Op.or]:[
-          {
-            NOMBRECORTO: {
-              [Op.like]: `${param}%`
-            }
-          }
-        ]
-      },
+      where: where,
       offset:1,
 
     });

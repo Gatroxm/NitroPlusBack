@@ -92,20 +92,26 @@ const LogIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.LogIn = LogIn;
 const getPilotosDesActivados = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const param = req.query.param;
+    let where = {
+        ACTIVO: 0,
+        [Op.or]: [
+            {
+                NOMBRECORTO: {
+                    [Op.like]: `${param}%`
+                }
+            }
+        ]
+    };
+    if (param === '' || param === undefined) {
+        where = {
+            ACTIVO: 0
+        };
+    }
     console.log(req.query);
     try {
         const pilotos = yield tb_pilotos_1.default.findAll({
             attributes: ['PK_ID_PILOTO', 'NOMBRECORTO', 'DISCORD_ID', 'zona_horaria', 'whatsapp', 'ACTIVO'],
-            where: {
-                ACTIVO: 0,
-                [Op.or]: [
-                    {
-                        NOMBRECORTO: {
-                            [Op.like]: `${param}%`
-                        }
-                    }
-                ]
-            },
+            where: where,
             offset: 1,
         });
         res.json({
