@@ -47,10 +47,12 @@ export const getPiloto = async (req: Request, res: Response) => {
 
 export const LogIn = async (req: Request, res: Response) => {
   const {email, password} = req.body;
+  
   try {
     const piloto = await tb_pilotos.findAll({
       where: {useremail: email, password: password}
     });
+    console.log(piloto)
     if(piloto.length >0){
       return res.json({
         ok: true,

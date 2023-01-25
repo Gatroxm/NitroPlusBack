@@ -67,6 +67,7 @@ const LogIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const piloto = yield tb_pilotos_1.default.findAll({
             where: { useremail: email, password: password }
         });
+        console.log(piloto);
         if (piloto.length > 0) {
             return res.json({
                 ok: true,
