@@ -18,11 +18,17 @@ const cors_1 = __importDefault(require("cors"));
 const connection_1 = __importDefault(require("../db/connection"));
 const piloto_1 = __importDefault(require("../routes/piloto"));
 const consultas_1 = __importDefault(require("../routes/consultas"));
+const pais_1 = __importDefault(require("../routes/pais"));
+const discord_1 = __importDefault(require("../routes/discord"));
+const mandos_1 = __importDefault(require("../routes/mandos"));
 class Server {
     constructor() {
         this.apiPaths = {
             pilotos: '/api/pilotos',
-            consultas: '/api/consultas'
+            consultas: '/api/consultas',
+            pais: '/api/pais',
+            discord: '/api/discord',
+            mandos: '/api/mandos'
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '3000';
@@ -52,6 +58,9 @@ class Server {
     routes() {
         this.app.use(this.apiPaths.pilotos, piloto_1.default);
         this.app.use(this.apiPaths.consultas, consultas_1.default);
+        this.app.use(this.apiPaths.pais, pais_1.default);
+        this.app.use(this.apiPaths.discord, discord_1.default);
+        this.app.use(this.apiPaths.mandos, mandos_1.default);
     }
     lisent() {
         this.app.listen(this.port, () => {

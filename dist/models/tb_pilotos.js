@@ -1,120 +1,186 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+const Sequelize = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+    return sequelize.define('tb_pilotos', {
+        id: {
+            autoIncrement: true,
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true
+        },
+        nombre: {
+            type: DataTypes.STRING(90),
+            allowNull: true
+        },
+        apellido: {
+            type: DataTypes.STRING(90),
+            allowNull: true
+        },
+        nombreCorto: {
+            type: DataTypes.STRING(90),
+            allowNull: false,
+            unique: "nombre_corto_UNIQUE"
+        },
+        idEstado: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1,
+            references: {
+                model: 'tb_estado_general',
+                key: 'id'
+            }
+        },
+        fechaNacimiento: {
+            type: DataTypes.DATEONLY,
+            allowNull: true
+        },
+        idNacionalidad: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tb_paises',
+                key: 'id'
+            }
+        },
+        instagram: {
+            type: DataTypes.STRING(45),
+            allowNull: true
+        },
+        ciudad: {
+            type: DataTypes.STRING(90),
+            allowNull: true
+        },
+        departamento: {
+            type: DataTypes.STRING(90),
+            allowNull: true
+        },
+        idPaisResidencia: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tb_paises',
+                key: 'id'
+            }
+        },
+        resena: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        correoElectronico: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+            unique: "correo_electronico_UNIQUE"
+        },
+        password: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
+        whatsapp: {
+            type: DataTypes.STRING(45),
+            allowNull: true
+        },
+        update_at: {
+            type: DataTypes.DATE,
+            allowNull: true,
+            defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
+        },
+        idMando: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1,
+            references: {
+                model: 'tb_tipo_mando',
+                key: 'id'
+            }
+        },
+        discordId: {
+            type: DataTypes.STRING(45),
+            allowNull: true
+        },
+        nombreDiscord: {
+            type: DataTypes.STRING(90),
+            allowNull: true
+        },
+        canal_twitch: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
+        canal_facebook: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
+        canal_youtube: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
+        aceptaCondiciones: {
+            type: DataTypes.TINYINT,
+            allowNull: false,
+            defaultValue: 0
+        }
+    }, {
+        timestamps: false,
+
+        // If don't want createdAt
+        createdAt: false,
+
+        // If don't want updatedAt
+        updatedAt: false,
+    }, {
+        sequelize,
+        tableName: 'tb_pilotos',
+        timestamps: true,
+        indexes: [{
+                name: "PRIMARY",
+                unique: true,
+                using: "BTREE",
+                fields: [
+                    { name: "id" },
+                ]
+            },
+            {
+                name: "nombre_corto_UNIQUE",
+                unique: true,
+                using: "BTREE",
+                fields: [
+                    { name: "nombreCorto" },
+                ]
+            },
+            {
+                name: "correo_electronico_UNIQUE",
+                unique: true,
+                using: "BTREE",
+                fields: [
+                    { name: "correoElectronico" },
+                ]
+            },
+            {
+                name: "fk_tb_pilotos_tb_paises_idx",
+                using: "BTREE",
+                fields: [
+                    { name: "idPaisResidencia" },
+                ]
+            },
+            {
+                name: "fk_tb_pilotos_tb_tipo_mando1_idx",
+                using: "BTREE",
+                fields: [
+                    { name: "idMando" },
+                ]
+            },
+            {
+                name: "fk_tb_pilotos_tb_estado_general1_idx",
+                using: "BTREE",
+                fields: [
+                    { name: "idEstado" },
+                ]
+            },
+            {
+                name: "fk_tb_pilotos_tb_paises1_idx",
+                using: "BTREE",
+                fields: [
+                    { name: "idNacionalidad" },
+                ]
+            },
+        ]
+    });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const sequelize_1 = require("sequelize");
-const connection_1 = __importDefault(require("../db/connection"));
-const tb_pilotos = connection_1.default.define('tb_pilotos', {
-    PK_ID_PILOTO: {
-        type: sequelize_1.DataTypes.INTEGER,
-        primaryKey: true,
-    },
-    FK_ID_LIGA: {
-        type: sequelize_1.DataTypes.INTEGER
-    },
-    NOMBRE: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    APELLIDO: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    NOMBRECORTO: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    ACTIVO: {
-        type: sequelize_1.DataTypes.INTEGER
-    },
-    FECHA_NACIMIENTO: {
-        type: sequelize_1.DataTypes.DATE
-    },
-    COD_STEAM: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    ID_STEAM: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    INSTAGRAM: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    CIUDAD: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    DEPARTAMENTO: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    PAIS: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    RESENA: {
-        type: sequelize_1.DataTypes.TEXT
-    },
-    URLSILUETA: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    URLRETRATO: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    URLPOSTER: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    XBOX_GAMERTAG: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    PSN_ID: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    ID_EA: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    IRACING_ID: {
-        type: sequelize_1.DataTypes.INTEGER
-    },
-    DISCORD_ID: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    NOMBRE_DISCORD: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    ID_FORMINATOR: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    NIVEL_SUB: {
-        type: sequelize_1.DataTypes.INTEGER
-    },
-    TIPO_MANDO: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    PLATAFORMA_FORM: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    ID_FORM: {
-        type: sequelize_1.DataTypes.INTEGER
-    },
-    useremail: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    username: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    token: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    zona_horaria: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    password: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    whatsapp: {
-        type: sequelize_1.DataTypes.STRING
-    },
-}, {
-    timestamps: false,
-    // If don't want createdAt
-    createdAt: false,
-    // If don't want updatedAt
-    updatedAt: false,
-});
-exports.default = tb_pilotos;
-//# sourceMappingURL=tb_pilotos.js.map

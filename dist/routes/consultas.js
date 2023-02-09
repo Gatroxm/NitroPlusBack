@@ -12,5 +12,11 @@ routerConsultas.get('/ProximasCarreras/:id', consultas_1.getProximasCarreras);
 routerConsultas.get('/UltimosResultados/:id', consultas_1.getUltimosResultados);
 routerConsultas.get('/UltimosReportesResibidos/:id', consultas_1.gteUltimosReportesRecibidos);
 routerConsultas.get('/UltimosReportesEnviados/:id', consultas_1.getUltimosReportesEnviados);
+routerConsultas.get('/podios/:id', consultas_1.getPodios);
+routerConsultas.get('/dnf/:id', consultas_1.getDNF);
+routerConsultas.get('/dsq/:id', consultas_1.getDSQ);
+routerConsultas.get('/poles/:id', consultas_1.getPoles);
+routerConsultas.get('/vueltaRapidas/:id', consultas_1.getVueltaRapida);
+routerConsultas.get('/pilotoDelDia/:id', consultas_1.getPilotoDelDia);
 exports.default = routerConsultas;
 //# sourceMappingURL=consultas.js.map

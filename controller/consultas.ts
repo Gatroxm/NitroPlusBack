@@ -1,15 +1,16 @@
 import { Response, Request } from "express";
-import { QueryTypes } from "sequelize";
-import tb_calendario from "../models/tb_calendario";
-import tb_pilotos from "../models/tb_pilotos";
-import tb_reportes_comisarios from "../models/tb_reportes_comisarios";
-import tb_tabla_puntos from "../models/tb_tabla_puntos";
+import { QueryTypes, } from "sequelize";
+const {  sequelize } = require("sequelize");
+import { initModels, } from "../models/init-models";
+
+const models = initModels(sequelize);
 
 export const totalParticipaciones = async (req: Request, res: Response) => {
   const { id } = req.params;
+
   try {
-    const Participaciones: any = await tb_tabla_puntos.sequelize?.query(
-      `SELECT Sum(tb_tabla_puntos.ES_POSICION) AS Participaciones FROM tb_resultados INNER JOIN tb_tabla_puntos ON tb_resultados.FK_ID_PUNTOS = tb_tabla_puntos.PK_ID_PUNTOS GROUP BY tb_resultados.FK_ID_PILOTO HAVING (((tb_resultados.FK_ID_PILOTO)=${id}))`,
+    const Participaciones: any = await models.tb_puntos.sequelize?.query(
+      `SELECT Sum(tb_ident_pos.isParticipacion) AS Participaciones FROM (tb_puntos INNER JOIN tb_ident_pos ON tb_puntos.idIdentPos = tb_ident_pos.id) INNER JOIN (tb_reparto_puntos INNER JOIN tb_resultados ON tb_reparto_puntos.idResultado = tb_resultados.id) ON tb_puntos.id = tb_reparto_puntos.idPuntos GROUP BY tb_reparto_puntos.idCodificacion, tb_resultados.idPiloto HAVING (((tb_reparto_puntos.idCodificacion)=1) AND ((tb_resultados.idPiloto)=${id}));`,
       { type: QueryTypes.SELECT }
     );
     return res.json({
@@ -27,8 +28,11 @@ export const totalParticipaciones = async (req: Request, res: Response) => {
 export const totalVictorias = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const Victorias = await tb_tabla_puntos.sequelize?.query(
-      `SELECT Sum(tb_tabla_puntos.ES_VICTORIA) AS Victorias FROM tb_resultados INNER JOIN tb_tabla_puntos ON tb_resultados.FK_ID_PUNTOS = tb_tabla_puntos.PK_ID_PUNTOS GROUP BY tb_resultados.FK_ID_PILOTO HAVING (((tb_resultados.FK_ID_PILOTO)=${id}))`,
+    const Victorias = await models.tb_puntos.sequelize?.query(
+      `SELECT Sum(tb_ident_pos.isVictoria) AS Victorias
+      FROM (tb_puntos INNER JOIN tb_ident_pos ON tb_puntos.idIdentPos = tb_ident_pos.id) INNER JOIN (tb_reparto_puntos INNER JOIN tb_resultados ON tb_reparto_puntos.idResultado = tb_resultados.id) ON tb_puntos.id = tb_reparto_puntos.idPuntos
+      GROUP BY tb_reparto_puntos.idCodificacion, tb_resultados.idPiloto
+      HAVING (((tb_reparto_puntos.idCodificacion)=1) AND ((tb_resultados.idPiloto)=${id}));`,
       { type: QueryTypes.SELECT }
     );
     return res.json({
@@ -46,7 +50,7 @@ export const totalVictorias = async (req: Request, res: Response) => {
 export const nombreCortoPiloto = async (req: Request, res: Response) => {
     const {id} = req.params;
     try {
-        const NombreCorto = await tb_pilotos.sequelize?.query(`SELECT tb_pilotos.NOMBRECORTO as NOMBRECORTO FROM tb_pilotos WHERE tb_pilotos.PK_ID_PILOTO = ${id} `, { type: QueryTypes.SELECT });
+        const NombreCorto = await models.tb_puntos.sequelize?.query(`SELECT tb_pilotos.NOMBRECORTO as NOMBRECORTO FROM tb_pilotos WHERE tb_pilotos.PK_ID_PILOTO = ${id} `, { type: QueryTypes.SELECT });
 
         return res.json({
             ok:true,
@@ -66,18 +70,8 @@ export const getProximasCarreras = async (req: Request, res: Response) => {
     const { id } = req.params;
     const date  = new Date();
     try {
-        const query = `SELECT tb_calendario.FECHA, tb_calendario.HORA, tb_plataformas.URL_LOGO_PLATAFORMA, tb_simulador.URL_LOGO_SIMULADOR, tb_torneos.NOMBRE_TORNEO, tb_divisiones_salas.NOMBRE_DIVISION, tb_pistas.PNG_BANDERA, tb_pistas.NOMBRE_PISTA, tb_coches.NOMBRE_COCHE
-        FROM ((((((tb_calendario 
-        INNER JOIN tb_participantes ON tb_calendario.FK_DIVISION_SALA = tb_participantes.FK_DIVISION_SALA) 
-        INNER JOIN tb_divisiones_salas ON tb_participantes.FK_DIVISION_SALA = tb_divisiones_salas.PK_DIVISION_SALA) 
-        INNER JOIN tb_torneos ON tb_divisiones_salas.FK_TORNEO = tb_torneos.PK_TORNEO) 
-        INNER JOIN tb_pistas ON tb_calendario.FK_ID_PISTA = tb_pistas.PK_ID_PISTA)
-        INNER JOIN tb_coches ON tb_participantes.FK_COCHE_PREDETERMINADO = tb_coches.PK_COCHE) 
-        INNER JOIN tb_plataformas ON tb_torneos.FK_PLATAFORMA = tb_plataformas.PK_ID_PLATAFORMA)
-        INNER JOIN tb_simulador ON tb_torneos.FK_SIMULADOR = tb_simulador.PK_SIMULADOR
-        WHERE ( ((tb_calendario.FECHA)>="${date.getFullYear()}/${date.getMonth()}/${date.getDay()}") AND ((tb_participantes.ES_TITULAR)=1) AND ((tb_participantes.FK_ID_PILOTO)=${id}))
-        ORDER BY tb_calendario.FECHA DESC LIMIT 5 ;`
-        const top5Carreras:any = await tb_calendario.sequelize?.query(query, { type: QueryTypes.SELECT });
+        const query = `SELECT tb_calendario.fechaHoraCarrera, nitrodb.tb_calendario.fechaNo, nitrodb.tb_torneos.nombre, nitrodb.tb_divisiones.nombre,  nitrodb.tb_calendario.nombreEvento, nitrodb.tb_paises.imgBandera, nitrodb.tb_ident_pos.nombre, nitrodb.tb_puntos.puntos FROM (nitrodb.tb_paises INNER JOIN (nitrodb.tb_pistas INNER JOIN (nitrodb.tb_pistas_variantes INNER JOIN (nitrodb.tb_pistas_sim INNER JOIN ((nitrodb.tb_estado_carrera INNER JOIN (nitrodb.tb_divisiones INNER JOIN (nitrodb.tb_calendario INNER JOIN ((nitrodb.tb_reparto_puntos INNER JOIN nitrodb.tb_resultados ON nitrodb.tb_reparto_puntos.idResultado = nitrodb.tb_resultados.id) INNER JOIN nitrodb.tb_puntos ON nitrodb.tb_reparto_puntos.idPuntos = nitrodb.tb_puntos.id) ON nitrodb.tb_calendario.id = nitrodb.tb_resultados.idCalendario) ON nitrodb.tb_divisiones.id = nitrodb.tb_resultados.idNombreDivision) ON nitrodb.tb_estado_carrera.id = nitrodb.tb_calendario.idEstadoCarrera) INNER JOIN nitrodb.tb_torneos ON nitrodb.tb_divisiones.idTorneo = nitrodb.tb_torneos.idTorneo) ON nitrodb.tb_pistas_sim.id = nitrodb.tb_calendario.idPista) ON nitrodb.tb_pistas_variantes.id = nitrodb.tb_pistas_sim.id) ON nitrodb.tb_pistas.id = nitrodb.tb_pistas_variantes.idPistaPrincipal) ON nitrodb.tb_paises.id = nitrodb.tb_pistas.idPais) INNER JOIN nitrodb.tb_ident_pos ON nitrodb.tb_puntos.idIdentPos = nitrodb.tb_ident_pos.id WHERE (((nitrodb.tb_reparto_puntos.idCodificacion)=1) AND ((nitrodb.tb_resultados.idPiloto)=${id}) AND ((nitrodb.tb_estado_carrera.id)=1)) ORDER BY nitrodb.tb_calendario.fechaHoraCarrera LIMIT 10;`
+        const top5Carreras:any = await models.tb_calendario.sequelize?.query(query, { type: QueryTypes.SELECT });
         if(top5Carreras.length > 0){
             return res.json({
                 ok:true,
@@ -104,19 +98,8 @@ export const getProximasCarreras = async (req: Request, res: Response) => {
 export const getUltimosResultados = async (req: Request, res: Response) => {
     const {id} = req.params;
     try {
-        const query = `SELECT tb_calendario.FECHA, tb_calendario.HORA, tb_plataformas.URL_LOGO_PLATAFORMA, tb_simulador.SIMULADOR, tb_torneos.NOMBRE_TORNEO, tb_divisiones_salas.NOMBRE_DIVISION, tb_pistas.PNG_BANDERA, tb_pistas.NOMBRE_PISTA, tb_calendario.NOMBRE_EVENTO, tb_tabla_puntos.ID_POSICION_FINAL AS Gen, tb_tabla_puntos_1.ID_POSICION_FINAL AS Cat
-        FROM (((((((tb_resultados 
-        INNER JOIN tb_calendario ON tb_resultados.FK_ID_CALENDARIO = tb_calendario.PK_ID_CALENDARIO) 
-        INNER JOIN tb_divisiones_salas ON tb_calendario.FK_DIVISION_SALA = tb_divisiones_salas.PK_DIVISION_SALA) 
-        INNER JOIN tb_torneos ON tb_divisiones_salas.FK_TORNEO = tb_torneos.PK_TORNEO) 
-        INNER JOIN tb_plataformas ON tb_torneos.FK_PLATAFORMA = tb_plataformas.PK_ID_PLATAFORMA) 
-        INNER JOIN tb_simulador ON tb_torneos.FK_SIMULADOR = tb_simulador.PK_SIMULADOR) 
-        INNER JOIN tb_pistas ON tb_calendario.FK_ID_PISTA = tb_pistas.PK_ID_PISTA) 
-        INNER JOIN tb_tabla_puntos ON tb_resultados.FK_ID_PUNTOS = tb_tabla_puntos.PK_ID_PUNTOS) 
-        INNER JOIN tb_tabla_puntos AS tb_tabla_puntos_1 ON tb_resultados.FK_ID_PUNTOS_CAT = tb_tabla_puntos_1.PK_ID_PUNTOS
-        WHERE (((tb_resultados.FK_ID_PILOTO)=${id}))
-        ORDER BY tb_calendario.FECHA DESC LIMIT 10;`;
-        const ultimosResultados:any = await tb_calendario.sequelize?.query(query,{ type: QueryTypes.SELECT });
+        const query = `SELECT tb_calendario.fechaHoraCarrera, tb_calendario.fechaNo, tb_torneos.nombre, tb_divisiones.nombre, tb_calendario.nombreEvento, tb_paises.imgBandera, tb_ident_pos.nombre, tb_puntos.puntos FROM (tb_paises INNER JOIN (tb_pistas INNER JOIN (tb_pistas_variantes INNER JOIN (tb_pistas_sim INNER JOIN ((tb_estado_carrera INNER JOIN (tb_divisiones INNER JOIN (tb_calendario INNER JOIN ((tb_reparto_puntos INNER JOIN tb_resultados ON tb_reparto_puntos.idResultado = tb_resultados.id) INNER JOIN tb_puntos ON tb_reparto_puntos.idPuntos = tb_puntos.id) ON tb_calendario.id = tb_resultados.idCalendario) ON tb_divisiones.id = tb_resultados.idNombreDivision) ON tb_estado_carrera.id = tb_calendario.idEstadoCarrera) INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo) ON tb_pistas_sim.id = tb_calendario.idPista) ON tb_pistas_variantes.id = tb_pistas_sim.id) ON tb_pistas.id = tb_pistas_variantes.idPistaPrincipal) ON tb_paises.id = tb_pistas.idPais) INNER JOIN tb_ident_pos ON tb_puntos.idIdentPos = tb_ident_pos.id WHERE (((tb_reparto_puntos.idCodificacion)=1) AND ((tb_resultados.idPiloto)=${id}) AND ((tb_estado_carrera.id)=1)) ORDER BY tb_calendario.fechaHoraCarrera LIMIT 10;`;
+        const ultimosResultados:any = await models.tb_paises.sequelize?.query(query,{ type: QueryTypes.SELECT });
         if(ultimosResultados.length > 0){
             return res.json({
                 ok:true,
@@ -141,10 +124,9 @@ export const getUltimosResultados = async (req: Request, res: Response) => {
 
 export const gteUltimosReportesRecibidos = async (req:Request, res:Response) => {
     const {id} = req.params;
-    const date = new Date();
-    const query = `SELECT tb_reportes_comisarios.PK_ID_REPORTE, tb_reportes_comisarios.FECHA_REPORTE, tb_pilotos.NOMBRECORTO, tb_calendario.NOMBRE_CORTO, tb_divisiones_salas.NOMBRE_DIVISION, tb_torneos.NOMBRE_TORNEO, TB_PISTA_PRINCIPAL.URL_BANDERA, TB_ESTADO_REPORTES.NOMBRE_ESTADO_REPORTES, tb_reportes_comisarios.PUNTOS_PENALIZACION, tb_reportes_comisarios.SEGUNDOS_PENALIZACION, tb_reportes_comisarios.POS_PENALIZACION FROM ((((((tb_reportes_comisarios INNER JOIN tb_calendario ON tb_reportes_comisarios.FK_ID_EVENTO = tb_calendario.PK_ID_CALENDARIO) INNER JOIN tb_pistas ON tb_calendario.FK_ID_PISTA = tb_pistas.PK_ID_PISTA) INNER JOIN tb_divisiones_salas ON tb_calendario.FK_DIVISION_SALA = tb_divisiones_salas.PK_DIVISION_SALA) INNER JOIN tb_torneos ON tb_divisiones_salas.FK_TORNEO = tb_torneos.PK_TORNEO) INNER JOIN TB_PISTA_PRINCIPAL ON tb_pistas.FK_PISTA_PRINCIPAL = TB_PISTA_PRINCIPAL.PK_ID_PISTA) INNER JOIN TB_ESTADO_REPORTES ON tb_reportes_comisarios.FK_ESTADO_REPORTE = TB_ESTADO_REPORTES.PK_ESTADO_REPORTE) INNER JOIN tb_pilotos ON tb_reportes_comisarios.FK_DENUNCIANTE = tb_pilotos.PK_ID_PILOTO WHERE (((tb_reportes_comisarios.FECHA_REPORTE)>="${ SumaRestaDias(date, -7)}")  AND ((tb_reportes_comisarios.FK_DENUNCIADO)=${id})) ORDER BY tb_reportes_comisarios.FECHA_REPORTE DESC;`
+    const query = `SELECT tb_reportes_comisarios.id, tb_reportes_comisarios.fechaReporte, tb_torneos.nombre,     tb_divisiones.nombre, tb_estado_reportes.nombre, tb_rol_involucrados.nombre FROM ((tb_involucrados_sanciones INNER JOIN (((tb_reportes_comisarios INNER JOIN tb_estado_reportes ON tb_reportes_comisarios.idEstadoReporte = tb_estado_reportes.id) INNER JOIN tb_calendario ON tb_reportes_comisarios.idCalendario = tb_calendario.id) INNER JOIN tb_divisiones ON tb_calendario.idDivision = tb_divisiones.id) ON tb_involucrados_sanciones.idReporte = tb_reportes_comisarios.id) INNER JOIN tb_rol_involucrados ON tb_involucrados_sanciones.idRolInvolucrado = tb_rol_involucrados.id) INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo WHERE (((tb_estado_reportes.id)=1) AND ((tb_involucrados_sanciones.idPiloto)=${id}));`
     try {
-        const ultimosReportesRecibidos:any = await tb_reportes_comisarios.sequelize?.query(query, { type: QueryTypes.SELECT });
+        const ultimosReportesRecibidos:any = await models.tb_involucrados_sanciones.sequelize?.query(query, { type: QueryTypes.SELECT });
         if(ultimosReportesRecibidos.length > 0){
             return res.json({
                 ok:true,
@@ -171,10 +153,10 @@ export const gteUltimosReportesRecibidos = async (req:Request, res:Response) => 
 export const getUltimosReportesEnviados = async (req: Request, res: Response) => {
     const {id} = req.params;
     const date = new Date();
-    const query = `SELECT tb_reportes_comisarios.PK_ID_REPORTE, tb_reportes_comisarios.FECHA_REPORTE, tb_pilotos.NOMBRECORTO, tb_calendario.NOMBRE_CORTO, tb_divisiones_salas.NOMBRE_DIVISION, tb_torneos.NOMBRE_TORNEO, TB_PISTA_PRINCIPAL.URL_BANDERA, TB_ESTADO_REPORTES.NOMBRE_ESTADO_REPORTES, tb_reportes_comisarios.PUNTOS_PENALIZACION, tb_reportes_comisarios.SEGUNDOS_PENALIZACION, tb_reportes_comisarios.POS_PENALIZACION FROM ((((((tb_reportes_comisarios INNER JOIN tb_calendario ON tb_reportes_comisarios.FK_ID_EVENTO = tb_calendario.PK_ID_CALENDARIO) INNER JOIN tb_pistas ON tb_calendario.FK_ID_PISTA = tb_pistas.PK_ID_PISTA) INNER JOIN tb_divisiones_salas ON tb_calendario.FK_DIVISION_SALA = tb_divisiones_salas.PK_DIVISION_SALA) INNER JOIN tb_torneos ON tb_divisiones_salas.FK_TORNEO = tb_torneos.PK_TORNEO) INNER JOIN TB_PISTA_PRINCIPAL ON tb_pistas.FK_PISTA_PRINCIPAL = TB_PISTA_PRINCIPAL.PK_ID_PISTA) INNER JOIN TB_ESTADO_REPORTES ON tb_reportes_comisarios.FK_ESTADO_REPORTE = TB_ESTADO_REPORTES.PK_ESTADO_REPORTE) INNER JOIN tb_pilotos ON tb_reportes_comisarios.FK_DENUNCIADO = tb_pilotos.PK_ID_PILOTO WHERE (((tb_reportes_comisarios.FECHA_REPORTE)>="${SumaRestaDias(date, -7)}") AND ((tb_reportes_comisarios.FK_DENUNCIANTE)=${id}))
-    ORDER BY tb_reportes_comisarios.FECHA_REPORTE DESC;`
+    const query = `SELECT nitrodb.tb_reportes_comisarios.id, nitrodb.tb_reportes_comisarios.fechaReporte, nitrodb.tb_torneos.nombre, nitrodb.tb_divisiones.nombre, nitrodb.tb_estado_reportes.nombre, nitrodb.tb_rol_involucrados.nombre, nitrodb.tb_tipo_penalizacion.nombre, nitrodb.tb_penalizacion_sanciones.valor, nitrodb.tb_tipo_penalizacion.unidadDeMedida FROM (nitrodb.tb_tipo_penalizacion RIGHT JOIN nitrodb.tb_penalizacion_sanciones ON nitrodb.tb_tipo_penalizacion.id = nitrodb.tb_penalizacion_sanciones.idTipoPenalizacion) RIGHT JOIN (nitrodb.tb_pilotos_penalizados RIGHT JOIN (((nitrodb.tb_involucrados_sanciones INNER JOIN (((nitrodb.tb_reportes_comisarios INNER JOIN nitrodb.tb_estado_reportes ON nitrodb.tb_reportes_comisarios.idEstadoReporte = nitrodb.tb_estado_reportes.id) INNER JOIN nitrodb.tb_calendario 
+    ON nitrodb.tb_reportes_comisarios.idCalendario = nitrodb.tb_calendario.id) INNER JOIN nitrodb.tb_divisiones ON nitrodb.tb_calendario.idDivision = nitrodb.tb_divisiones.id) ON nitrodb.tb_involucrados_sanciones.idReporte = nitrodb.tb_reportes_comisarios.id) INNER JOIN nitrodb.tb_rol_involucrados ON nitrodb.tb_involucrados_sanciones.idRolInvolucrado = nitrodb.tb_rol_involucrados.id) INNER JOIN nitrodb.tb_torneos ON nitrodb.tb_divisiones.idTorneo = nitrodb.tb_torneos.idTorneo) ON nitrodb.tb_pilotos_penalizados.idInvolucradoSancion = nitrodb.tb_involucrados_sanciones.id) ON nitrodb.tb_penalizacion_sanciones.id = nitrodb.tb_pilotos_penalizados.idPenalizacion WHERE (((nitrodb.tb_estado_reportes.id)>1) AND ((nitrodb.tb_involucrados_sanciones.idPiloto)=${id})) LIMIT 10;`
     try {
-        const ultimosReportesEnviados:any = await tb_reportes_comisarios.sequelize?.query(query, { type: QueryTypes.SELECT });
+        const ultimosReportesEnviados:any = await models.tb_reportes_comisarios.sequelize?.query(query, { type: QueryTypes.SELECT });
         if(ultimosReportesEnviados.length > 0){
             return res.json({
                 ok:true,
@@ -198,7 +180,161 @@ export const getUltimosReportesEnviados = async (req: Request, res: Response) =>
 
 }
 
-function SumaRestaDias(fecha:Date, dias:number) {
-    fecha.setDate(fecha.getDate() + dias);
-    return fecha.getFullYear()+"/"+(fecha.getMonth()+1)+"/"+fecha.getDate();
-  }
+export const getPodios = async (req:Request, res:Response) => {
+    const {id} = req.params;
+    const query = `SELECT Sum(tb_ident_pos.isPodio) AS Podios FROM (tb_puntos INNER JOIN tb_ident_pos ON tb_puntos.idIdentPos = tb_ident_pos.id) INNER JOIN (tb_reparto_puntos INNER JOIN tb_resultados ON tb_reparto_puntos.idResultado = tb_resultados.id) ON tb_puntos.id = tb_reparto_puntos.idPuntos GROUP BY tb_reparto_puntos.idCodificacion, tb_resultados.idPiloto
+    HAVING (((tb_reparto_puntos.idCodificacion)=1) AND ((tb_resultados.idPiloto)=${id}))`;
+    try {
+        const Podios = await models.tb_puntos.sequelize.query(query, { type: QueryTypes.SELECT });
+        if(Podios.length > 0){
+            return res.json({
+                ok:true,
+                reportes:true,
+                Podios
+            })
+        }else {
+            return res.json({
+                ok:true,
+                reportes:false,
+                msg: 'No cuentas con Pódios'
+            })
+        }
+    }  catch (error) {
+        return res.status(500).json({
+            ok:false,
+            error: error,
+        });
+    }
+}
+
+export const getDNF = async (req:Request, res:Response) => {
+    const {id} = req.params;
+    const query = `SELECT Sum(tb_ident_pos.isDNF) AS DNF FROM (tb_puntos INNER JOIN tb_ident_pos ON tb_puntos.idIdentPos = tb_ident_pos.id) INNER JOIN (tb_reparto_puntos INNER JOIN tb_resultados ON tb_reparto_puntos.idResultado = tb_resultados.id) ON tb_puntos.id = tb_reparto_puntos.idPuntos GROUP BY tb_reparto_puntos.idCodificacion, tb_resultados.idPiloto HAVING (((tb_reparto_puntos.idCodificacion)=1) AND ((tb_resultados.idPiloto)=${id}));`;
+    try {
+        const DNF = await models.tb_puntos.sequelize.query(query, { type: QueryTypes.SELECT });
+        if(DNF.length > 0){
+            return res.json({
+                ok:true,
+                reportes:true,
+                DNF
+            })
+        }else {
+            return res.json({
+                ok:true,
+                reportes:false,
+                msg: 'No cuentas con DNF'
+            })
+        }
+    }  catch (error) {
+        return res.status(500).json({
+            ok:false,
+            error: error,
+        });
+    }
+}
+
+export const getDSQ = async (req:Request, res:Response) => {
+    const {id} = req.params;
+    const query = `SELECT Sum(tb_ident_pos.isDSQ) AS DSQ FROM (tb_puntos INNER JOIN tb_ident_pos ON tb_puntos.idIdentPos = tb_ident_pos.id) INNER JOIN (tb_reparto_puntos INNER JOIN tb_resultados ON tb_reparto_puntos.idResultado = tb_resultados.id) ON tb_puntos.id = tb_reparto_puntos.idPuntos GROUP BY tb_reparto_puntos.idCodificacion, tb_resultados.idPiloto
+    HAVING (((tb_reparto_puntos.idCodificacion)=1) AND ((tb_resultados.idPiloto)=${id}));`;
+    try {
+        const DSQ = await models.tb_puntos.sequelize.query(query, { type: QueryTypes.SELECT });
+        if(DSQ.length > 0){
+            return res.json({
+                ok:true,
+                reportes:true,
+                DSQ
+            })
+        }else {
+            return res.json({
+                ok:true,
+                reportes:false,
+                msg: 'No cuentas con DSQ'
+            })
+        }
+    }  catch (error) {
+        return res.status(500).json({
+            ok:false,
+            error: error,
+        });
+    }
+}
+
+export const getPoles = async (req:Request, res:Response) => {
+    const {id} = req.params;
+    const query = `SELECT Sum(tb_ident_pos.isPole) AS Poles FROM (tb_puntos INNER JOIN tb_ident_pos ON tb_puntos.idIdentPos = tb_ident_pos.id) INNER JOIN (tb_reparto_puntos INNER JOIN tb_resultados ON tb_reparto_puntos.idResultado = tb_resultados.id) ON tb_puntos.id = tb_reparto_puntos.idPuntos GROUP BY tb_reparto_puntos.idCodificacion, tb_resultados.idPiloto
+    HAVING (((tb_reparto_puntos.idCodificacion)=1) AND ((tb_resultados.idPiloto)=${id}));`;
+    try {
+        const Poles = await models.tb_puntos.sequelize.query(query, { type: QueryTypes.SELECT });
+        if(Poles.length > 0){
+            return res.json({
+                ok:true,
+                reportes:true,
+                Poles
+            })
+        }else {
+            return res.json({
+                ok:true,
+                reportes:false,
+                msg: 'No cuentas con Poles'
+            })
+        }
+    }  catch (error) {
+        return res.status(500).json({
+            ok:false,
+            error: error,
+        });
+    }
+}
+
+export const getVueltaRapida = async (req:Request, res:Response) => {
+    const {id} = req.params;
+    const query = `SELECT Sum(tb_ident_pos.isVueltaRapida) AS VueltaRapida FROM (tb_puntos INNER JOIN tb_ident_pos ON tb_puntos.idIdentPos = tb_ident_pos.id) INNER JOIN (tb_reparto_puntos INNER JOIN tb_resultados ON tb_reparto_puntos.idResultado = tb_resultados.id) ON tb_puntos.id = tb_reparto_puntos.idPuntos GROUP BY tb_reparto_puntos.idCodificacion, tb_resultados.idPiloto HAVING (((tb_reparto_puntos.idCodificacion)=1) AND ((tb_resultados.idPiloto)=${id}));`;
+    try {
+        const VueltaRapida = await models.tb_puntos.sequelize.query(query, { type: QueryTypes.SELECT });
+        if(VueltaRapida.length > 0){
+            return res.json({
+                ok:true,
+                reportes:true,
+                VueltaRapida
+            })
+        }else {
+            return res.json({
+                ok:true,
+                reportes:false,
+                msg: 'No cuentas con VueltaRapida'
+            })
+        }
+    }  catch (error) {
+        return res.status(500).json({
+            ok:false,
+            error: error,
+        });
+    }
+}
+
+export const getPilotoDelDia = async (req:Request, res:Response) => {
+    const {id} = req.params;
+    const query = `SELECT Sum(tb_ident_pos.isPilotodelDia) AS PilotoDelDia FROM (tb_puntos INNER JOIN tb_ident_pos ON tb_puntos.idIdentPos = tb_ident_pos.id) INNER JOIN (tb_reparto_puntos INNER JOIN tb_resultados ON tb_reparto_puntos.idResultado = tb_resultados.id) ON tb_puntos.id = tb_reparto_puntos.idPuntos GROUP BY tb_reparto_puntos.idCodificacion, tb_resultados.idPiloto HAVING (((tb_reparto_puntos.idCodificacion)=1) AND ((tb_resultados.idPiloto)=${id}));`;
+    try {
+        const PilotoDelDia = await models.tb_puntos.sequelize.query(query, { type: QueryTypes.SELECT });
+        if(PilotoDelDia.length > 0){
+            return res.json({
+                ok:true,
+                reportes:true,
+                PilotoDelDia
+            })
+        }else {
+            return res.json({
+                ok:true,
+                reportes:false,
+                msg: 'No cuentas con Piloto Del Día'
+            })
+        }
+    }  catch (error) {
+        return res.status(500).json({
+            ok:false,
+            error: error,
+        });
+    }
+}

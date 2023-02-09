@@ -1,8 +1,14 @@
 import { Router } from "express";
 import { 
+    getDNF,
+    getDSQ,
+    getPilotoDelDia,
+    getPodios,
+    getPoles,
     getProximasCarreras,
     getUltimosReportesEnviados,
     getUltimosResultados,
+    getVueltaRapida,
     gteUltimosReportesRecibidos,
     nombreCortoPiloto,
     totalParticipaciones,
@@ -18,5 +24,11 @@ routerConsultas.get('/ProximasCarreras/:id', getProximasCarreras);
 routerConsultas.get('/UltimosResultados/:id', getUltimosResultados);
 routerConsultas.get('/UltimosReportesResibidos/:id', gteUltimosReportesRecibidos);
 routerConsultas.get('/UltimosReportesEnviados/:id', getUltimosReportesEnviados);
+routerConsultas.get('/podios/:id', getPodios);
+routerConsultas.get('/dnf/:id', getDNF);
+routerConsultas.get('/dsq/:id', getDSQ);
+routerConsultas.get('/poles/:id', getPoles);
+routerConsultas.get('/vueltaRapidas/:id', getVueltaRapida );
+routerConsultas.get('/pilotoDelDia/:id', getPilotoDelDia );
 
 export default routerConsultas;

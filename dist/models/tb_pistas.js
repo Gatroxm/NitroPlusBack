@@ -1,81 +1,64 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const sequelize_1 = require("sequelize");
-const connection_1 = __importDefault(require("../db/connection"));
-const tb_pista_principal_1 = __importDefault(require("./tb_pista_principal"));
-const tb_simulador_1 = __importDefault(require("./tb_simulador"));
-const tb_pistas = connection_1.default.define('tb_pistas', {
-    PK_ID_PISTA: {
-        type: sequelize_1.DataTypes.INTEGER,
-        primaryKey: true,
+const Sequelize = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('tb_pistas', {
+    id: {
+      autoIncrement: true,
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true
     },
-    FK_SIMULADOR: {
-        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
-        allowNull: false,
-        references: {
-            model: tb_simulador_1.default,
-            key: "PK_SIMULADOR"
-        }
+    nombre: {
+      type: DataTypes.STRING(50),
+      allowNull: true
     },
-    FK_PISTA_PRINCIPAL: {
-        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
-        allowNull: false,
-        references: {
-            model: tb_pista_principal_1.default,
-            key: "PK_ID_PISTA"
-        }
+    idPais: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'tb_paises',
+        key: 'id'
+      }
     },
-    NOMBRE_PISTA: {
-        type: sequelize_1.DataTypes.STRING(255),
+    imgLogo: {
+      type: DataTypes.STRING(255),
+      allowNull: true
     },
-    VARIANTE: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    LONGITUD: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    NO_DE_CURVAS: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    PNG_BANDERA: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    PNG_LOGO: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    PNG_ONBOARD: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    PNG_PANORAMICO: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    PNG_ONTRACK: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    MP4_INTRO: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    MP4_MAPA: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    MP4_ONBOARD: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    acc_id_track: {
-        type: sequelize_1.DataTypes.STRING(255),
-    },
-    f122_id_track: {
-        type: sequelize_1.DataTypes.INTEGER,
+    idEstado: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+      references: {
+        model: 'tb_estado_general',
+        key: 'id'
+      }
     }
-}, {
+  }, {
+    sequelize,
+    tableName: 'tb_pistas',
     timestamps: false,
-    // If don't want createdAt
-    createdAt: false,
-    // If don't want updatedAt
-    updatedAt: false,
-});
-exports.default = tb_pistas;
-//# sourceMappingURL=tb_pistas.js.map
+    indexes: [
+      {
+        name: "PRIMARY",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "id" },
+        ]
+      },
+      {
+        name: "fk_tb_pistas_principal_tb_paises1_idx",
+        using: "BTREE",
+        fields: [
+          { name: "idPais" },
+        ]
+      },
+      {
+        name: "fk_tb_pistas_tb_estado_general1_idx",
+        using: "BTREE",
+        fields: [
+          { name: "idEstado" },
+        ]
+      },
+    ]
+  });
+};

@@ -1,36 +1,100 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+const Sequelize = require('sequelize');
+module.exports = function(sequelize, DataTypes) {
+    return sequelize.define('tb_conceptos_comisarios', {
+        id: {
+            autoIncrement: true,
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true
+        },
+        idReporte: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tb_reportes_comisarios',
+                key: 'id'
+            }
+        },
+        idAsignacionComisario: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tb_asignacion_comisario',
+                key: 'id'
+            }
+        },
+        idSancionPropuesta: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'tb_tabla_sanciones',
+                key: 'id'
+            }
+        },
+        idGravedadPropuesta: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'tb_gravedad_sancion',
+                key: 'id'
+            }
+        },
+        concepto: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        fechaCreacion: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
+        fechaActualizacion: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
+        id_ref_ext_concepto: {
+            type: DataTypes.STRING(45),
+            allowNull: true
+        }
+    }, {
+        sequelize,
+        tableName: 'tb_conceptos_comisarios',
+        timestamps: false,
+        indexes: [{
+                name: "PRIMARY",
+                unique: true,
+                using: "BTREE",
+                fields: [
+                    { name: "id" },
+                ]
+            },
+            {
+                name: "fk_tb_conceptos_comisario_base_tb_reportes_comisarios1_idx",
+                using: "BTREE",
+                fields: [
+                    { name: "idReporte" },
+                ]
+            },
+            {
+                name: "fk_tb_conceptos_comisario_base_tb_tabla_sanciones1_idx",
+                using: "BTREE",
+                fields: [
+                    { name: "idSancionPropuesta" },
+                ]
+            },
+            {
+                name: "fk_tb_conceptos_comisario_base_tb_gravedad_sancion1_idx",
+                using: "BTREE",
+                fields: [
+                    { name: "idGravedadPropuesta" },
+                ]
+            },
+            {
+                name: "fk_tb_conceptos_comisario_base_tb_asignacion_comisario1_idx",
+                using: "BTREE",
+                fields: [
+                    { name: "idAsignacionComisario" },
+                ]
+            },
+        ]
+    });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const sequelize_1 = require("sequelize");
-const connection_1 = __importDefault(require("../db/connection"));
-const tb_conceptos_comisarios = connection_1.default.define('tb_conceptos_comisarios', {
-    PK_ID_CONCEPTO: {
-        type: sequelize_1.DataTypes.INTEGER,
-        primaryKey: true,
-    },
-    FK_ID_REPORTE: {
-        type: sequelize_1.DataTypes.INTEGER,
-    },
-    FK_ID_COMISARIO: {
-        type: sequelize_1.DataTypes.INTEGER
-    },
-    DISCORD_COMISARIO: {
-        type: sequelize_1.DataTypes.STRING(255)
-    },
-    CONCEPTO: {
-        type: sequelize_1.DataTypes.STRING
-    },
-    ID_REF_EXT_CON: {
-        type: sequelize_1.DataTypes.INTEGER
-    },
-}, {
-    timestamps: false,
-    // If don't want createdAt
-    createdAt: false,
-    // If don't want updatedAt
-    updatedAt: false,
-});
-exports.default = tb_conceptos_comisarios;
-//# sourceMappingURL=tb_conceptos_comisarios.js.map

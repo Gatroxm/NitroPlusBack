@@ -1,10 +1,12 @@
 import { Response, Request } from "express";
-import tb_pilotos from "../models/tb_pilotos";
-const { Op } = require("sequelize");
+import { initModels } from "../models/init-models";
+const { Op, sequelize } = require("sequelize");
+const models = initModels(sequelize);
+
 export const getAllPilotos = async (req: Request, res: Response) => {
   const desde = Number(req.query.desde) || 0;
   try {
-    const pilotos = await tb_pilotos.findAll({
+    const pilotos = await models.tb_pilotos.findAll({
       limit: 10,
       offset: desde,
     });
@@ -15,16 +17,18 @@ export const getAllPilotos = async (req: Request, res: Response) => {
       Pilotos: pilotos,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       ok: false,
       error: error,
     });
   }
 };
+
 export const getPiloto = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const piloto = await tb_pilotos.findByPk(id);
+    const piloto = await models.tb_pilotos.findByPk(id);
 
     if (piloto) {
       return res.json({
@@ -46,15 +50,15 @@ export const getPiloto = async (req: Request, res: Response) => {
 };
 
 export const LogIn = async (req: Request, res: Response) => {
-  const {email, password} = req.body;
-  
+  const { email, password } = req.body;
+
   try {
-    const piloto = await tb_pilotos.findAll({
-      where: {useremail: email, password: password}
+    const piloto = await models.tb_pilotos.findAll({
+      where: { correoElectronico: email, password: password },
     });
-    console.log(piloto)
-    if(piloto.length >0){
-      return res.json({
+    console.log(piloto);
+    if (piloto.length > 0) {
+      return res.status(200).json({
         ok: true,
         piloto: piloto[0],
       });
@@ -64,95 +68,203 @@ export const LogIn = async (req: Request, res: Response) => {
         msg: `error al ingresar`,
       });
     }
-    
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({
       ok: false,
       error: error,
     });
   }
-}
+};
 
 export const getPilotosDesActivados = async (req: Request, res: Response) => {
   const param = req.query.param;
-  let where:any = {
-    ACTIVO: 0,
-    [Op.or]:[
+  let where: any = {
+    idEstado: 0,
+    [Op.or]: [
       {
-        NOMBRECORTO: {
-          [Op.like]: `${param}%`
-        }
-      }
-    ]
-  }
-  if(param === '' || param === undefined) {
+        nombreCorto: {
+          [Op.like]: `${param}%`,
+        },
+      },
+    ],
+  };
+  if (param === "" || param === undefined) {
     where = {
-      ACTIVO: 0
-    }
+      idEstado: 0,
+    };
   }
-  console.log(req.query)
   try {
-    
-    const pilotos = await tb_pilotos.findAll({ 
-      attributes: ['PK_ID_PILOTO', 'NOMBRECORTO', 'DISCORD_ID', 'zona_horaria', 'whatsapp', 'ACTIVO'],
+    const PilotosEditados: any = [];
+    const pilotos = await models.tb_pilotos.findAll({
+      attributes: ["id", "nombreCorto", "discordId", "whatsapp", "idEstado"],
       where: where,
-      offset:1,
-
+      offset: 1,
     });
-    res.json({
-      ok:true,
-      pilotos
-    })
 
+    
+    res.json({
+        ok: true,
+        pilotos
+      });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({
       ok: false,
       error: error,
     });
   }
-
-}
+};
 
 export const updatePilotoInActivo = async (req: Request, res: Response) => {
   const {
-    zona_horaria,
     whatsapp,
     useremail,
     password,
     PK_ID_PILOTO,
-    DISCORD_ID
+    DISCORD_ID,
   } = req.body;
   try {
-    const piloto = await tb_pilotos.update(
+    const piloto = await models.tb_pilotos.update(
       {
-        ACTIVO: 1,
-        zona_horaria: zona_horaria,
+        idEstado: 1,
+        // zona_horaria: zona_horaria,
         whatsapp: whatsapp,
-        useremail: useremail,
+        correoElectronico: useremail,
         DISCORD_ID: DISCORD_ID,
         password: password,
-      }, {
-        where :{
-          PK_ID_PILOTO: PK_ID_PILOTO
-        }
+      },
+      {
+        where: {
+          id: PK_ID_PILOTO,
+        },
       }
-    )
-    if( piloto[0]===1 ){
+    );
+    if (piloto[0] === 1) {
       return res.json({
-        ok:true,
-        msg: 'Piloto actualizado'
-      })
+        ok: true,
+        msg: "Piloto actualizado",
+      });
     } else {
-
       return res.json({
-        ok:false,
-        msg: 'El piloto no se puedo actualizar por que o no existe o no detecta cambios'
-      })
+        ok: false,
+        msg: "El piloto no se puedo actualizar por que o no existe o no detecta cambios",
+      });
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+};
+
+export const createPiloto = async ( req:Request, res: Response) => {
+
+  const { nombre, apellido, nombreCorto, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, password, whatsapp, created_at, update_at, idMando, discordId, nombreDiscord, canal_twitch, canal_facebook, canal_youtube,
+    aceptaCondiciones } = req.body;
+  
+  try {
+    const mismoPiloto = await models.tb_pilotos.findAll({
+      where:{
+        correoElectronico
+      } 
+    });
+    if(mismoPiloto.length > 0) {
+      return res.json({
+        ok:false,
+        msn: `el correo ${correoElectronico} ya se encuentra registrado`
+      });
+    } else {
+      const ultimo = await models.tb_pilotos.findAll({});
+      const piloto = await models.tb_pilotos.create({ nombre, apellido, nombreCorto:`piloto N° ${ultimo[ultimo.length -1].id + 3}`, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, password, whatsapp, created_at, update_at, idMando, discordId, nombreDiscord, canal_twitch, canal_facebook, canal_youtube, aceptaCondiciones });
+
+      return res.json({
+        ok:true,
+        piloto
+      });
+
+
+    }
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+
+
+}
+
+export const changePassword = async (req: Request, res: Response) => {
+
+  const {id, correoElectronico, password} = req.body;
+
+  try {
+    
+    const piloto =  await models.tb_pilotos.findAll({
+      where: {id,correoElectronico}
+    })
+    if(piloto.length > 0) {
+
+      const editPassword = await models.tb_pilotos.update({
+        password: password},
+        {
+
+          where: {
+            id,
+          },
+        })
+        if (editPassword[0] === 1) {
+          return res.json({
+            ok: true,
+            msg: "Piloto actualizado",
+          });
+        } else {
+          return res.json({
+            ok: false,
+            msg: "El piloto no se puedo actualizar por que o no detecta cambios en la contraseña",
+          });
+        }
+    }
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+
+
+
+}
+
+export const updatePiloto = async (req:Request, res:Response) => {
+  const { id, nombre, apellido, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, whatsapp, idMando, discordId, canal_youtube, canal_twitch, canal_facebook } = req.body;
+  try {
+    const piloto = await models.tb_pilotos.update({ id, nombre, apellido, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, whatsapp, idMando, discordId, canal_youtube, canal_twitch, canal_facebook },
+      {
+        where: {
+          id,
+        },
+      })
+    if (piloto[0] === 1) {
+      return res.json({
+        ok: true,
+        msg: "Piloto actualizado",
+      });
+    } else {
+      return res.json({
+        ok: false,
+        msg: "El piloto no se puedo actualizar por que o no existe o no detecta cambios",
+      });
+    }
+  } catch (error) {
+    console.log(error);
     return res.status(500).json({
       ok: false,
       error: error,
