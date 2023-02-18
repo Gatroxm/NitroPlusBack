@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPilotoDelDia = exports.getVueltaRapida = exports.getPoles = exports.getDSQ = exports.getDNF = exports.getPodios = exports.getUltimosReportesEnviados = exports.gteUltimosReportesRecibidos = exports.getUltimosResultados = exports.getProximasCarreras = exports.nombreCortoPiloto = exports.totalVictorias = exports.totalParticipaciones = void 0;
+exports.getCalendario = exports.getPilotoDelDia = exports.getVueltaRapida = exports.getPoles = exports.getDSQ = exports.getDNF = exports.getPodios = exports.getUltimosReportesEnviados = exports.gteUltimosReportesRecibidos = exports.getUltimosResultados = exports.getProximasCarreras = exports.nombreCortoPiloto = exports.totalVictorias = exports.totalParticipaciones = void 0;
 const sequelize_1 = require("sequelize");
 const { sequelize } = require("sequelize");
 const init_models_1 = require("../models/init-models");
@@ -361,4 +361,36 @@ const getPilotoDelDia = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getPilotoDelDia = getPilotoDelDia;
+const getCalendario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const division = Number(req.query.division) || 0;
+    const query = `SELECT tb_calendario.fechaNo, tb_calendario.codFecha, tb_paises.imgBandera, tb_calendario.nombreEvento, tb_pistas_variantes.nombre AS nombreVariante, tb_calendario.fechaHoraCarrera, tb_calendario.horaVirtual, tb_calendario.tempAire, tb_calendario.tempPista, tb_calendario.nubosidad, tb_calendario.lluvia, tb_calendario.observaciones, tb_calendario.urlTransmision, tb_calendario.requisitoBoxes, tb_formato_carrera.nombre AS NombreFormato, tb_estado_carrera.nombre AS NombreEstado, tb_divisiones.nombre AS NombreDivision, tb_calendario.esPorEtapas, tb_calendario.noVueltasRequeridas, tb_calendario.elo_multiplicador, tb_calendario.nombreEventoCorto, tb_calendario.confirmacionCreada, tb_sistema_puntos.nombre AS NombreSistema FROM tb_sistema_puntos INNER JOIN ((tb_estado_carrera INNER JOIN (tb_formato_carrera INNER JOIN ((((tb_calendario INNER JOIN tb_pistas_sim ON tb_calendario.idPista = tb_pistas_sim.id) INNER JOIN tb_pistas_variantes ON tb_pistas_sim.idPistaVariante = tb_pistas_variantes.id) INNER JOIN tb_pistas ON tb_pistas_variantes.idPistaPrincipal = tb_pistas.id) INNER JOIN tb_paises ON tb_pistas.idPais = tb_paises.id) ON tb_formato_carrera.id = tb_calendario.idFormatoCarrera) ON tb_estado_carrera.id = tb_calendario.idEstadoCarrera) INNER JOIN tb_divisiones ON tb_calendario.idDivision = tb_divisiones.id) ON tb_sistema_puntos.id = tb_calendario.idSistemaPuntos WHERE (((tb_calendario.idDivision)=${division})) ORDER BY tb_calendario.fechaHoraCarrera DESC;`;
+    try {
+        const calendario = yield models.tb_sistema_puntos.sequelize.query(query, { type: sequelize_1.QueryTypes.SELECT });
+        if (calendario.length > 0) {
+            const resp = [];
+            calendario.forEach((element) => {
+                const imgBandera = `https://multimedia.nitrosimracingclub.com${element.imgBandera}`;
+                const arr = Object.assign({ img: imgBandera }, element);
+                resp.push(arr);
+            });
+            return res.status(200).json({
+                ok: true,
+                calendario: resp
+            });
+        }
+        else {
+            return res.status(404).json({
+                ok: false,
+                msg: `No se encuentra calendario para la división ${division}`
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.getCalendario = getCalendario;
 //# sourceMappingURL=consultas.js.map

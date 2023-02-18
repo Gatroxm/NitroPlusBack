@@ -18,5 +18,6 @@ routerConsultas.get('/dsq/:id', consultas_1.getDSQ);
 routerConsultas.get('/poles/:id', consultas_1.getPoles);
 routerConsultas.get('/vueltaRapidas/:id', consultas_1.getVueltaRapida);
 routerConsultas.get('/pilotoDelDia/:id', consultas_1.getPilotoDelDia);
+routerConsultas.get('/calendario', consultas_1.getCalendario);
 exports.default = routerConsultas;
 //# sourceMappingURL=consultas.js.map

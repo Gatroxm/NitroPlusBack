@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePiloto = exports.changePassword = exports.createPiloto = exports.updatePilotoInActivo = exports.getPilotosDesActivados = exports.LogIn = exports.getPiloto = exports.getAllPilotos = void 0;
+exports.getPilotoByidSim = exports.updatePiloto = exports.changePassword = exports.createPiloto = exports.updatePilotoInActivo = exports.getPilotosDesActivados = exports.LogIn = exports.getPiloto = exports.getAllPilotos = void 0;
 const init_models_1 = require("../models/init-models");
-const { Op, sequelize } = require("sequelize");
+const { Op, sequelize, QueryTypes } = require("sequelize");
 const models = (0, init_models_1.initModels)(sequelize);
 const getAllPilotos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const desde = Number(req.query.desde) || 0;
@@ -263,4 +263,24 @@ const updatePiloto = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.updatePiloto = updatePiloto;
+const getPilotoByidSim = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { sim } = req.query;
+    const query = `SELECT tb_pilotos_id_sim.idSimPiloto, tb_pilotos.nombre, tb_pilotos.apellido, tb_pilotos.nombreCorto
+  FROM tb_pilotos_id_sim INNER JOIN tb_pilotos ON tb_pilotos_id_sim.idPiloto = tb_pilotos.id
+  WHERE (((tb_pilotos_id_sim.idSimPiloto)="${sim}"));`;
+    try {
+        const getPilotoByidSim = yield models.tb_pilotos_id_sim.sequelize.query(query, { type: QueryTypes.SELECT });
+        res.json({
+            ok: true,
+            getPilotoByidSim
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.getPilotoByidSim = getPilotoByidSim;
 //# sourceMappingURL=piloto.js.map

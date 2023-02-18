@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 import { initModels } from "../models/init-models";
-const { Op, sequelize } = require("sequelize");
+const { Op, sequelize, QueryTypes } = require("sequelize");
 const models = initModels(sequelize);
 
 export const getAllPilotos = async (req: Request, res: Response) => {
@@ -265,6 +265,25 @@ export const updatePiloto = async (req:Request, res:Response) => {
     }
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+}
+export const getPilotoByidSim =async (req:Request, res:Response) => {
+  const {sim} = req.query;
+  const query = `SELECT tb_pilotos_id_sim.idSimPiloto, tb_pilotos.nombre, tb_pilotos.apellido, tb_pilotos.nombreCorto
+  FROM tb_pilotos_id_sim INNER JOIN tb_pilotos ON tb_pilotos_id_sim.idPiloto = tb_pilotos.id
+  WHERE (((tb_pilotos_id_sim.idSimPiloto)="${sim}"));`;
+  try {
+    const getPilotoByidSim = await models.tb_pilotos_id_sim.sequelize.query(query,{ type: QueryTypes.SELECT });
+
+    res.json({
+      ok:true,
+      getPilotoByidSim
+    })
+  } catch (error) {
     return res.status(500).json({
       ok: false,
       error: error,

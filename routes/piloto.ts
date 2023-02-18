@@ -1,10 +1,21 @@
 import { Router } from "express";
-import { changePassword, createPiloto, getAllPilotos, getPiloto, getPilotosDesActivados, LogIn, updatePiloto, updatePilotoInActivo } from "../controller/piloto";
+import { 
+    changePassword, 
+    createPiloto, 
+    getAllPilotos, 
+    getPiloto, 
+    getPilotoByidSim, 
+    getPilotosDesActivados, 
+    LogIn, 
+    updatePiloto, 
+    updatePilotoInActivo 
+} from "../controller/piloto";
 
 const routerPolitos = Router();
 
 routerPolitos.get('/', getAllPilotos);
 routerPolitos.get('/in-activos', getPilotosDesActivados);
+routerPolitos.get('/potoBySim', getPilotoByidSim);
 routerPolitos.put('/register-update', updatePilotoInActivo);
 routerPolitos.get('/:id', getPiloto);
 routerPolitos.post('/login', LogIn);

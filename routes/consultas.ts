@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { 
+    getCalendario,
     getDNF,
     getDSQ,
     getPilotoDelDia,
@@ -30,5 +31,6 @@ routerConsultas.get('/dsq/:id', getDSQ);
 routerConsultas.get('/poles/:id', getPoles);
 routerConsultas.get('/vueltaRapidas/:id', getVueltaRapida );
 routerConsultas.get('/pilotoDelDia/:id', getPilotoDelDia );
+routerConsultas.get('/calendario', getCalendario );
 
 export default routerConsultas;
