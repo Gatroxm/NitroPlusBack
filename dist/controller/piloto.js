@@ -9,8 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPilotoByidSim = exports.updatePiloto = exports.changePassword = exports.createPiloto = exports.updatePilotoInActivo = exports.getPilotosDesActivados = exports.LogIn = exports.getPiloto = exports.getAllPilotos = void 0;
+exports.getImagenPiloto = exports.getPilotoByidSim = exports.updatePiloto = exports.changePassword = exports.createPiloto = exports.updatePilotoInActivo = exports.getPilotosDesActivados = exports.LogIn = exports.getPiloto = exports.getAllPilotos = void 0;
 const init_models_1 = require("../models/init-models");
+const bcrypt = require("bcrypt");
 const { Op, sequelize, QueryTypes } = require("sequelize");
 const models = (0, init_models_1.initModels)(sequelize);
 const getAllPilotos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -39,6 +40,7 @@ const getPiloto = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
         const piloto = yield models.tb_pilotos.findByPk(id);
+        piloto.password = '';
         if (piloto) {
             return res.json({
                 ok: true,
@@ -63,22 +65,27 @@ exports.getPiloto = getPiloto;
 const LogIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     try {
-        const piloto = yield models.tb_pilotos.findAll({
-            where: { correoElectronico: email, password: password },
+        const piloto = yield models.tb_pilotos.findOne({
+            where: { correoElectronico: email },
         });
-        console.log(piloto);
-        if (piloto.length > 0) {
-            return res.status(200).json({
-                ok: true,
-                piloto: piloto[0],
-            });
-        }
-        else {
-            res.status(404).json({
-                ok: false,
-                msg: `error al ingresar`,
-            });
-        }
+        bcrypt.compare(password, piloto.dataValues.password, (err, result) => {
+            if (err) {
+                console.log(err);
+            }
+            else if (result) {
+                res.status(404).json({
+                    ok: false,
+                    msg: `error al ingresar`,
+                });
+            }
+            else {
+                piloto.dataValues.password = '';
+                return res.status(200).json({
+                    ok: true,
+                    piloto: piloto.dataValues,
+                });
+            }
+        });
     }
     catch (error) {
         console.log(error);
@@ -115,7 +122,7 @@ const getPilotosDesActivados = (req, res) => __awaiter(void 0, void 0, void 0, f
         });
         res.json({
             ok: true,
-            pilotos
+            pilotos,
         });
     }
     catch (error) {
@@ -128,32 +135,40 @@ const getPilotosDesActivados = (req, res) => __awaiter(void 0, void 0, void 0, f
 });
 exports.getPilotosDesActivados = getPilotosDesActivados;
 const updatePilotoInActivo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { whatsapp, useremail, password, PK_ID_PILOTO, DISCORD_ID, } = req.body;
+    const { whatsapp, useremail, password, PK_ID_PILOTO, DISCORD_ID } = req.body;
     try {
-        const piloto = yield models.tb_pilotos.update({
-            idEstado: 1,
-            // zona_horaria: zona_horaria,
-            whatsapp: whatsapp,
-            correoElectronico: useremail,
-            DISCORD_ID: DISCORD_ID,
-            password: password,
-        }, {
-            where: {
-                id: PK_ID_PILOTO,
-            },
-        });
-        if (piloto[0] === 1) {
-            return res.json({
-                ok: true,
-                msg: "Piloto actualizado",
-            });
-        }
-        else {
-            return res.json({
-                ok: false,
-                msg: "El piloto no se puedo actualizar por que o no existe o no detecta cambios",
-            });
-        }
+        bcrypt.hash(password, 10, (err, hashedPassword) => __awaiter(void 0, void 0, void 0, function* () {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                console.log(hashedPassword);
+                const piloto = yield models.tb_pilotos.update({
+                    idEstado: 1,
+                    // zona_horaria: zona_horaria,
+                    whatsapp: whatsapp,
+                    correoElectronico: useremail,
+                    DISCORD_ID: DISCORD_ID,
+                    password: hashedPassword,
+                }, {
+                    where: {
+                        id: PK_ID_PILOTO,
+                    },
+                });
+                if (piloto[0] === 1) {
+                    return res.json({
+                        ok: true,
+                        msg: "Piloto actualizado",
+                    });
+                }
+                else {
+                    return res.json({
+                        ok: false,
+                        msg: "El piloto no se puedo actualizar por que o no existe o no detecta cambios",
+                    });
+                }
+            }
+        }));
     }
     catch (error) {
         console.log(error);
@@ -165,25 +180,48 @@ const updatePilotoInActivo = (req, res) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.updatePilotoInActivo = updatePilotoInActivo;
 const createPiloto = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { nombre, apellido, nombreCorto, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, password, whatsapp, created_at, update_at, idMando, discordId, nombreDiscord, canal_twitch, canal_facebook, canal_youtube, aceptaCondiciones } = req.body;
+    const { nombre, apellido, nombreCorto, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, password, whatsapp, created_at, update_at, idMando, discordId, nombreDiscord, canal_twitch, canal_facebook, canal_youtube, aceptaCondiciones, } = req.body;
     try {
         const mismoPiloto = yield models.tb_pilotos.findAll({
             where: {
-                correoElectronico
-            }
+                correoElectronico,
+            },
         });
         if (mismoPiloto.length > 0) {
             return res.json({
                 ok: false,
-                msn: `el correo ${correoElectronico} ya se encuentra registrado`
+                msn: `el correo ${correoElectronico} ya se encuentra registrado`,
             });
         }
         else {
             const ultimo = yield models.tb_pilotos.findAll({});
-            const piloto = yield models.tb_pilotos.create({ nombre, apellido, nombreCorto: `piloto N° ${ultimo[ultimo.length - 1].id + 3}`, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, password, whatsapp, created_at, update_at, idMando, discordId, nombreDiscord, canal_twitch, canal_facebook, canal_youtube, aceptaCondiciones });
+            const piloto = yield models.tb_pilotos.create({
+                nombre,
+                apellido,
+                nombreCorto: `piloto N° ${ultimo[ultimo.length - 1].id + 3}`,
+                idEstado,
+                fechaNacimiento,
+                idNacionalidad,
+                ciudad,
+                departamento,
+                idPaisResidencia,
+                resena,
+                correoElectronico,
+                password,
+                whatsapp,
+                created_at,
+                update_at,
+                idMando,
+                discordId,
+                nombreDiscord,
+                canal_twitch,
+                canal_facebook,
+                canal_youtube,
+                aceptaCondiciones,
+            });
             return res.json({
                 ok: true,
-                piloto
+                piloto,
             });
         }
     }
@@ -199,30 +237,37 @@ exports.createPiloto = createPiloto;
 const changePassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id, correoElectronico, password } = req.body;
     try {
-        const piloto = yield models.tb_pilotos.findAll({
-            where: { id, correoElectronico }
-        });
-        if (piloto.length > 0) {
-            const editPassword = yield models.tb_pilotos.update({
-                password: password
-            }, {
-                where: {
-                    id,
-                },
-            });
-            if (editPassword[0] === 1) {
-                return res.json({
-                    ok: true,
-                    msg: "Piloto actualizado",
-                });
+        bcrypt.hash(password, 10, (err, hashedPassword) => __awaiter(void 0, void 0, void 0, function* () {
+            if (err) {
+                console.log(err);
             }
             else {
-                return res.json({
-                    ok: false,
-                    msg: "El piloto no se puedo actualizar por que o no detecta cambios en la contraseña",
+                const piloto = yield models.tb_pilotos.findAll({
+                    where: { id, correoElectronico },
                 });
+                if (piloto.length > 0) {
+                    const editPassword = yield models.tb_pilotos.update({
+                        password: hashedPassword,
+                    }, {
+                        where: {
+                            id,
+                        },
+                    });
+                    if (editPassword[0] === 1) {
+                        return res.json({
+                            ok: true,
+                            msg: "Piloto actualizado",
+                        });
+                    }
+                    else {
+                        return res.json({
+                            ok: false,
+                            msg: "El piloto no se puedo actualizar por que o no detecta cambios en la contraseña",
+                        });
+                    }
+                }
             }
-        }
+        }));
     }
     catch (error) {
         console.log(error);
@@ -234,9 +279,28 @@ const changePassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.changePassword = changePassword;
 const updatePiloto = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id, nombre, apellido, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, whatsapp, idMando, discordId, canal_youtube, canal_twitch, canal_facebook } = req.body;
+    const { id, nombre, apellido, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, whatsapp, idMando, discordId, canal_youtube, canal_twitch, canal_facebook, instagram } = req.body;
     try {
-        const piloto = yield models.tb_pilotos.update({ id, nombre, apellido, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, whatsapp, idMando, discordId, canal_youtube, canal_twitch, canal_facebook }, {
+        const piloto = yield models.tb_pilotos.update({
+            id,
+            nombre,
+            apellido,
+            idEstado,
+            fechaNacimiento,
+            idNacionalidad,
+            ciudad,
+            departamento,
+            idPaisResidencia,
+            resena,
+            correoElectronico,
+            whatsapp,
+            idMando,
+            discordId,
+            canal_youtube,
+            canal_twitch,
+            canal_facebook,
+            instagram
+        }, {
             where: {
                 id,
             },
@@ -272,7 +336,7 @@ const getPilotoByidSim = (req, res) => __awaiter(void 0, void 0, void 0, functio
         const getPilotoByidSim = yield models.tb_pilotos_id_sim.sequelize.query(query, { type: QueryTypes.SELECT });
         res.json({
             ok: true,
-            getPilotoByidSim
+            getPilotoByidSim,
         });
     }
     catch (error) {
@@ -283,4 +347,22 @@ const getPilotoByidSim = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.getPilotoByidSim = getPilotoByidSim;
+const getImagenPiloto = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { id } = req.params;
+    try {
+        const query = `SELECT fotoPiloto(${id},1) as Foto`;
+        const foto = yield ((_a = models.tb_pilotos.sequelize) === null || _a === void 0 ? void 0 : _a.query(query, { type: QueryTypes.SELECT }));
+        res.status(200).json({
+            foto: foto[0]['Foto']
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.getImagenPiloto = getImagenPiloto;
 //# sourceMappingURL=piloto.js.map

@@ -7,6 +7,7 @@ import {
     getPodios,
     getPoles,
     getProximasCarreras,
+    getSimuladores,
     getUltimosReportesEnviados,
     getUltimosResultados,
     getVueltaRapida,
@@ -32,5 +33,6 @@ routerConsultas.get('/poles/:id', getPoles);
 routerConsultas.get('/vueltaRapidas/:id', getVueltaRapida );
 routerConsultas.get('/pilotoDelDia/:id', getPilotoDelDia );
 routerConsultas.get('/calendario', getCalendario );
+routerConsultas.get('/simuladores/:id', getSimuladores );
 
 export default routerConsultas;

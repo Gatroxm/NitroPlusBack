@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCalendario = exports.getPilotoDelDia = exports.getVueltaRapida = exports.getPoles = exports.getDSQ = exports.getDNF = exports.getPodios = exports.getUltimosReportesEnviados = exports.gteUltimosReportesRecibidos = exports.getUltimosResultados = exports.getProximasCarreras = exports.nombreCortoPiloto = exports.totalVictorias = exports.totalParticipaciones = void 0;
+exports.getSimuladores = exports.getCalendario = exports.getPilotoDelDia = exports.getVueltaRapida = exports.getPoles = exports.getDSQ = exports.getDNF = exports.getPodios = exports.getUltimosReportesEnviados = exports.gteUltimosReportesRecibidos = exports.getUltimosResultados = exports.getProximasCarreras = exports.nombreCortoPiloto = exports.totalVictorias = exports.totalParticipaciones = void 0;
 const sequelize_1 = require("sequelize");
 const { sequelize } = require("sequelize");
 const init_models_1 = require("../models/init-models");
@@ -393,4 +393,31 @@ const getCalendario = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.getCalendario = getCalendario;
+const getSimuladores = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const query = `SELECT tb_simulador.nombre AS Simulador, tb_plataforma.nombre AS Plataforma, tb_pilotos_id_sim.idPiloto, tb_cod_plataforma.nombre, tb_pilotos_id_sim.idSimPiloto, tb_pilotos_id_sim.idEstado, tb_sim_plat_codplat.idSimulador, tb_sim_plat_codplat.idPlataforma FROM tb_cod_plataforma INNER JOIN (tb_plataforma INNER JOIN ((tb_pilotos_id_sim INNER JOIN tb_sim_plat_codplat ON tb_pilotos_id_sim.idSimCodPlataforma = tb_sim_plat_codplat.id) INNER JOIN tb_simulador ON tb_sim_plat_codplat.idSimulador = tb_simulador.id) ON tb_plataforma.id = tb_sim_plat_codplat.idPlataforma) ON tb_cod_plataforma.id = tb_sim_plat_codplat.idCodplataforma WHERE (((tb_pilotos_id_sim.idPiloto)=${id}));
+    `;
+    try {
+        const simuladores = yield models.tb_cod_plataforma.sequelize.query(query, { type: sequelize_1.QueryTypes.SELECT });
+        if (simuladores.length > 0) {
+            return res.status(200).json({
+                ok: true,
+                simuladores
+            });
+        }
+        else {
+            return res.status(404).json({
+                ok: false,
+                msg: `No se encuentran Simuladores`
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.getSimuladores = getSimuladores;
 //# sourceMappingURL=consultas.js.map

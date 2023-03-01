@@ -3,6 +3,7 @@ import {
     changePassword, 
     createPiloto, 
     getAllPilotos, 
+    getImagenPiloto, 
     getPiloto, 
     getPilotoByidSim, 
     getPilotosDesActivados, 
@@ -18,6 +19,7 @@ routerPolitos.get('/in-activos', getPilotosDesActivados);
 routerPolitos.get('/potoBySim', getPilotoByidSim);
 routerPolitos.put('/register-update', updatePilotoInActivo);
 routerPolitos.get('/:id', getPiloto);
+routerPolitos.get('/imagen/:id', getImagenPiloto);
 routerPolitos.post('/login', LogIn);
 routerPolitos.post('/register', createPiloto);
 routerPolitos.put('/changue-parword', changePassword);
