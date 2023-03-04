@@ -8,6 +8,7 @@ import routerConsultas from "../routes/consultas";
 import routerPaices from "../routes/pais";
 import routerDiscord from "../routes/discord";
 import routerMandos from "../routes/mandos";
+import routerSimuladores from "../routes/simuladores";
 
 class Server {
 
@@ -19,7 +20,8 @@ class Server {
         consultas: '/api/consultas',
         pais: '/api/pais',
         discord: '/api/discord',
-        mandos: '/api/mandos'
+        mandos: '/api/mandos',
+        simuladores: '/api/simuladores',
     }
 
     constructor(){
@@ -59,6 +61,7 @@ class Server {
         this.app.use(this.apiPaths.pais, routerPaices );
         this.app.use(this.apiPaths.discord, routerDiscord );
         this.app.use(this.apiPaths.mandos, routerMandos );
+        this.app.use(this.apiPaths.simuladores, routerSimuladores );
     }
 
     lisent() {

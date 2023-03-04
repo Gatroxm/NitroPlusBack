@@ -57,23 +57,27 @@ export const LogIn = async (req: Request, res: Response) => {
     const piloto = await models.tb_pilotos.findOne({
       where: { correoElectronico: email },
     });
+    console.log(password)
+    console.log(piloto.dataValues.password)
     bcrypt.compare(
       password,
       piloto.dataValues.password,
       (err: any, result: any) => {
+        console.log(result)
         if (err) {
           console.log(err);
         } else if (result) {
-          res.status(404).json({
-            ok: false,
-            msg: `error al ingresar`,
-          });
-        } else {
           piloto.dataValues.password = '';
           return res.status(200).json({
             ok: true,
             piloto: piloto.dataValues,
           });
+          
+        } else {
+         return res.status(404).json({
+          ok: false,
+          msg: `error al ingresar`,
+        });
         }
       }
     );

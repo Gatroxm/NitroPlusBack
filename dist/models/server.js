@@ -21,6 +21,7 @@ const consultas_1 = __importDefault(require("../routes/consultas"));
 const pais_1 = __importDefault(require("../routes/pais"));
 const discord_1 = __importDefault(require("../routes/discord"));
 const mandos_1 = __importDefault(require("../routes/mandos"));
+const simuladores_1 = __importDefault(require("../routes/simuladores"));
 class Server {
     constructor() {
         this.apiPaths = {
@@ -28,7 +29,8 @@ class Server {
             consultas: '/api/consultas',
             pais: '/api/pais',
             discord: '/api/discord',
-            mandos: '/api/mandos'
+            mandos: '/api/mandos',
+            simuladores: '/api/simuladores',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '3000';
@@ -61,6 +63,7 @@ class Server {
         this.app.use(this.apiPaths.pais, pais_1.default);
         this.app.use(this.apiPaths.discord, discord_1.default);
         this.app.use(this.apiPaths.mandos, mandos_1.default);
+        this.app.use(this.apiPaths.simuladores, simuladores_1.default);
     }
     lisent() {
         this.app.listen(this.port, () => {

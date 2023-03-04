@@ -68,21 +68,24 @@ const LogIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const piloto = yield models.tb_pilotos.findOne({
             where: { correoElectronico: email },
         });
+        console.log(password);
+        console.log(piloto.dataValues.password);
         bcrypt.compare(password, piloto.dataValues.password, (err, result) => {
+            console.log(result);
             if (err) {
                 console.log(err);
             }
             else if (result) {
-                res.status(404).json({
-                    ok: false,
-                    msg: `error al ingresar`,
-                });
-            }
-            else {
                 piloto.dataValues.password = '';
                 return res.status(200).json({
                     ok: true,
                     piloto: piloto.dataValues,
+                });
+            }
+            else {
+                return res.status(404).json({
+                    ok: false,
+                    msg: `error al ingresar`,
                 });
             }
         });
