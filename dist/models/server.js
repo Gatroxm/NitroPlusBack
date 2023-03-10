@@ -22,6 +22,8 @@ const pais_1 = __importDefault(require("../routes/pais"));
 const discord_1 = __importDefault(require("../routes/discord"));
 const mandos_1 = __importDefault(require("../routes/mandos"));
 const simuladores_1 = __importDefault(require("../routes/simuladores"));
+const notificaciones_1 = __importDefault(require("../routes/notificaciones"));
+const comunicados_1 = __importDefault(require("../routes/comunicados"));
 class Server {
     constructor() {
         this.apiPaths = {
@@ -31,6 +33,8 @@ class Server {
             discord: '/api/discord',
             mandos: '/api/mandos',
             simuladores: '/api/simuladores',
+            notificaciones: '/api/notificaciones',
+            comunicados: '/api/comunicados',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '3000';
@@ -64,6 +68,8 @@ class Server {
         this.app.use(this.apiPaths.discord, discord_1.default);
         this.app.use(this.apiPaths.mandos, mandos_1.default);
         this.app.use(this.apiPaths.simuladores, simuladores_1.default);
+        this.app.use(this.apiPaths.notificaciones, notificaciones_1.default);
+        this.app.use(this.apiPaths.comunicados, comunicados_1.default);
     }
     lisent() {
         this.app.listen(this.port, () => {

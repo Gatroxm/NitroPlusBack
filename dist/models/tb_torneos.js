@@ -95,12 +95,12 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DATE,
       allowNull: true
     },
-    fechaLiimiteInscripcion: {
+    fechaLimiteInscripcion: {
       type: DataTypes.DATE,
       allowNull: true
     },
     idRoleDiscord: {
-      type: DataTypes.STRING(45),
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     requierePreclasificatorio: {
@@ -122,6 +122,80 @@ module.exports = function(sequelize, DataTypes) {
     },
     instruccionesAdicionales: {
       type: DataTypes.TEXT,
+      allowNull: true
+    },
+    idSimVersion: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'tb_sim_version',
+        key: 'id'
+      }
+    },
+    idSimulador: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'tb_simulador',
+        key: 'id'
+      }
+    },
+    fechaCreacion: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    fechaActualizacion: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    asignaLicencia: {
+      type: DataTypes.TINYINT,
+      allowNull: true,
+      defaultValue: 0
+    },
+    idAsignacionLicencia: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'tb_tipo_licencias',
+        key: 'id'
+      }
+    },
+    limiteRanked: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    minELO: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    minSR: {
+      type: DataTypes.DECIMAL(4,2),
+      allowNull: true
+    },
+    minParticipaciones: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    minIndiceCumplimiento: {
+      type: DataTypes.DECIMAL(4,2),
+      allowNull: true
+    },
+    maxELO: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    maxSR: {
+      type: DataTypes.DECIMAL(4,2),
+      allowNull: true
+    },
+    maxParticipaciones: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    maxIndiceCumplimiento: {
+      type: DataTypes.DECIMAL(4,2),
       allowNull: true
     }
   }, {
@@ -198,6 +272,27 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "idPreguntaInscripcion" },
+        ]
+      },
+      {
+        name: "fk_tb_torneos_tb_sim_version1_idx",
+        using: "BTREE",
+        fields: [
+          { name: "idSimVersion" },
+        ]
+      },
+      {
+        name: "fk_tb_torneos_tb_simulador1_idx",
+        using: "BTREE",
+        fields: [
+          { name: "idSimulador" },
+        ]
+      },
+      {
+        name: "fk_tb_torneos_tb_tipo_licencias1_idx",
+        using: "BTREE",
+        fields: [
+          { name: "idAsignacionLicencia" },
         ]
       },
     ]

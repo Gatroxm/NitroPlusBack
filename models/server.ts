@@ -9,6 +9,8 @@ import routerPaices from "../routes/pais";
 import routerDiscord from "../routes/discord";
 import routerMandos from "../routes/mandos";
 import routerSimuladores from "../routes/simuladores";
+import routerNotificaciones from "../routes/notificaciones";
+import routerComunicados from "../routes/comunicados";
 
 class Server {
 
@@ -22,6 +24,8 @@ class Server {
         discord: '/api/discord',
         mandos: '/api/mandos',
         simuladores: '/api/simuladores',
+        notificaciones: '/api/notificaciones',
+        comunicados: '/api/comunicados',
     }
 
     constructor(){
@@ -62,6 +66,8 @@ class Server {
         this.app.use(this.apiPaths.discord, routerDiscord );
         this.app.use(this.apiPaths.mandos, routerMandos );
         this.app.use(this.apiPaths.simuladores, routerSimuladores );
+        this.app.use(this.apiPaths.notificaciones, routerNotificaciones );
+        this.app.use(this.apiPaths.comunicados, routerComunicados );
     }
 
     lisent() {

@@ -6,7 +6,7 @@ import { initModels } from "../models/init-models";
 const models = initModels(sequelize);
 
 export const getSimuladores = async (req: Request, res: Response) => {
-  const query = `SELECT tb_simulador.nombre AS sim, tb_plataforma.nombre AS plat, tb_cod_plataforma.nombre AS cod, tb_sim_plat_codplat.id, tb_sim_plat_codplat.descripcion, tb_sim_plat_codplat.instrucciones, rutaimagencompleta(tb_sim_plat_codplat.imgGuia) as imgGuia, tb_sim_plat_codplat.restricciones FROM ((tb_sim_plat_codplat INNER JOIN tb_simulador ON tb_sim_plat_codplat.idSimulador = tb_simulador.id) INNER JOIN tb_plataforma ON tb_sim_plat_codplat.idPlataforma = tb_plataforma.id) INNER JOIN tb_cod_plataforma ON tb_sim_plat_codplat.idCodplataforma = tb_cod_plataforma.id ORDER BY tb_simulador.nombre, tb_plataforma.nombre, tb_cod_plataforma.nombre;`;
+  const query = `SELECT tb_simulador.nombre AS sim, tb_plataforma.nombre AS plat, tb_cod_plataforma.nombre AS cod, tb_sim_plat_codplat.id, tb_sim_plat_codplat.descripcion, tb_sim_plat_codplat.instrucciones, rutaimagencompleta(tb_sim_plat_codplat.imgGuia) as imgGuia, tb_sim_plat_codplat.restricciones FROM ((tb_sim_plat_codplat INNER JOIN tb_simulador ON tb_sim_plat_codplat.idSimulador = tb_simulador.id) INNER JOIN tb_plataforma ON tb_sim_plat_codplat.idPlataforma = tb_plataforma.id) INNER JOIN tb_cod_plataforma ON tb_sim_plat_codplat.idCodplataforma = tb_cod_plataforma.id WHERE tb_sim_plat_codplat.idEstado = 1 ORDER BY tb_simulador.nombre, tb_plataforma.nombre, tb_cod_plataforma.nombre ;`;
 
   try {
     const simuladores: any = await models.tb_sim_plat_codplat.sequelize?.query(

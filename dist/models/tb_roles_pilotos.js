@@ -31,7 +31,7 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id'
       }
     },
-    create_time: {
+    fechaCreacion: {
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')

@@ -30,6 +30,15 @@ module.exports = function(sequelize, DataTypes) {
         model: 'tb_puntos',
         key: 'id'
       }
+    },
+    fechaCreacion: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    fechaActualizacion: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
     sequelize,
@@ -42,6 +51,16 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "idAsginacionResultado" },
+        ]
+      },
+      {
+        name: "UnicoRepartoPuntos",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "idResultado" },
+          { name: "idCodificacion" },
+          { name: "idPuntos" },
         ]
       },
       {

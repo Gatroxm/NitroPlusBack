@@ -23,20 +23,21 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id'
       }
     },
-    fechaReporte: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
     noVuelta: {
       type: DataTypes.INTEGER,
       allowNull: true
     },
-    fechaActualizacion: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
     id_ref_ext_reporte: {
       type: DataTypes.STRING(11),
+      allowNull: true
+    },
+    fechaReporte: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    fechaActualizacion: {
+      type: DataTypes.DATE,
       allowNull: true
     }
   }, {

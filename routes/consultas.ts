@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { 
+    getLicencias,
     getCalendario,
     getDNF,
     getDSQ,
@@ -8,13 +9,14 @@ import {
     getPoles,
     getProximasCarreras,
     getSimuladores,
-    getUltimosReportesEnviados,
+    getUltimosReportesCerrados,
     getUltimosResultados,
     getVueltaRapida,
-    gteUltimosReportesRecibidos,
+    gteUltimosReportesEnProceso,
     nombreCortoPiloto,
     totalParticipaciones,
-    totalVictorias 
+    totalVictorias, 
+    getReportes
 } from "../controller/consultas";
 
 const routerConsultas = Router();
@@ -24,8 +26,8 @@ routerConsultas.get('/victorias/:id', totalVictorias);;
 routerConsultas.get('/shortNamePilot/:id', nombreCortoPiloto);
 routerConsultas.get('/ProximasCarreras/:id', getProximasCarreras);
 routerConsultas.get('/UltimosResultados/:id', getUltimosResultados);
-routerConsultas.get('/UltimosReportesResibidos/:id', gteUltimosReportesRecibidos);
-routerConsultas.get('/UltimosReportesEnviados/:id', getUltimosReportesEnviados);
+routerConsultas.get('/UltimosReportesResibidos/:id', gteUltimosReportesEnProceso);
+routerConsultas.get('/UltimosReportesEnviados/:id', getUltimosReportesCerrados);
 routerConsultas.get('/podios/:id', getPodios);
 routerConsultas.get('/dnf/:id', getDNF);
 routerConsultas.get('/dsq/:id', getDSQ);
@@ -34,5 +36,8 @@ routerConsultas.get('/vueltaRapidas/:id', getVueltaRapida );
 routerConsultas.get('/pilotoDelDia/:id', getPilotoDelDia );
 routerConsultas.get('/calendario', getCalendario );
 routerConsultas.get('/simuladores/:id', getSimuladores );
+routerConsultas.get('/licencias/:id', getLicencias );
+routerConsultas.get('/reportes/:id', getReportes );
+
 
 export default routerConsultas;

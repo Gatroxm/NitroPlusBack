@@ -15,7 +15,11 @@ const { Op, sequelize } = require("sequelize");
 const models = (0, init_models_1.initModels)(sequelize);
 const getPaices = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const paices = yield models.tb_paises.findAll();
+        const paices = yield models.tb_paises.findAll({
+            order: [
+                ['nombre', 'ASC'],
+            ]
+        });
         return res.status(200).json({
             ok: true,
             paices

@@ -6,7 +6,11 @@ const models = initModels(sequelize);
 export const getPaices = async (req:Request, res:Response) => {
 
     try {
-        const paices = await models.tb_paises.findAll();
+        const paices = await models.tb_paises.findAll({
+          order: [
+            ['nombre', 'ASC'],
+          ]
+        });
         return res.status(200).json({
             ok:true,
             paices

@@ -27,6 +27,10 @@ module.exports = function(sequelize, DataTypes) {
         model: 'tb_estado_general',
         key: 'id'
       }
+    },
+    idRoleDiscord: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,

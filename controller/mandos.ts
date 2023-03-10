@@ -6,7 +6,11 @@ const models = initModels(sequelize);
 export const getMandos = async (req: Request, res:Response) => {
 
     try {
-        const mandos = await models.tb_tipo_mando.findAll({});
+        const mandos = await models.tb_tipo_mando.findAll({
+          order: [
+            ['nombre', 'ASC'],
+          ]
+        });
 
         return res.status(200).json({mandos});
     } catch (error) {

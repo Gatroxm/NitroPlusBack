@@ -20,7 +20,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     noDeCurvas: {
-      type: DataTypes.STRING(3),
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     idPistaPrincipal: {

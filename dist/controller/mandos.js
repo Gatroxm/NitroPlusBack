@@ -15,7 +15,11 @@ const { Op, sequelize } = require("sequelize");
 const models = (0, init_models_1.initModels)(sequelize);
 const getMandos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const mandos = yield models.tb_tipo_mando.findAll({});
+        const mandos = yield models.tb_tipo_mando.findAll({
+            order: [
+                ['nombre', 'ASC'],
+            ]
+        });
         return res.status(200).json({ mandos });
     }
     catch (error) {

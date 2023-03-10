@@ -47,6 +47,14 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id'
       }
     },
+    idSimulador: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'tb_simulador',
+        key: 'id'
+      }
+    },
     idSimVersion: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -79,6 +87,18 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id'
       }
     },
+    idCategoriaELO: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'tb_categoria_elo',
+        key: 'id'
+      }
+    },
+    numeroDeVueltas: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     msTiempoTotal: {
       type: DataTypes.INTEGER,
       allowNull: true
@@ -99,7 +119,15 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: true
     },
+    posicionELO: {
+      type: DataTypes.STRING(45),
+      allowNull: true
+    },
     PosSalida: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    posGanadas: {
       type: DataTypes.INTEGER,
       allowNull: true
     },
@@ -109,6 +137,75 @@ module.exports = function(sequelize, DataTypes) {
     },
     idRegExt: {
       type: DataTypes.STRING(50),
+      allowNull: true
+    },
+    eloAnterior: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    variacionELO: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    nuevoELO: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    anteriorSR: {
+      type: DataTypes.DECIMAL(4,2),
+      allowNull: true
+    },
+    variacionSR: {
+      type: DataTypes.DECIMAL(4,2),
+      allowNull: true
+    },
+    nuevoSR: {
+      type: DataTypes.DECIMAL(4,2),
+      allowNull: true
+    },
+    fechaCreacion: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    fechaActualizacion: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    incidentesCarrera: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    curvasTotales: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    indiceSR: {
+      type: DataTypes.DECIMAL(4,2),
+      allowNull: true
+    },
+    licenciaActual: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    licenciaFactorSR: {
+      type: DataTypes.DECIMAL(4,2),
+      allowNull: true
+    },
+    licenciaImpulsoSR: {
+      type: DataTypes.DECIMAL(4,2),
+      allowNull: true
+    },
+    licenciaMaximoSR: {
+      type: DataTypes.DECIMAL(4,2),
+      allowNull: true
+    },
+    licenciaMinimoSR: {
+      type: DataTypes.DECIMAL(4,2),
+      allowNull: true
+    },
+    licenciaBonificacionSR: {
+      type: DataTypes.DECIMAL(4,2),
       allowNull: true
     }
   }, {
@@ -185,6 +282,20 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "idPosicion" },
+        ]
+      },
+      {
+        name: "fk_tb_resultados_tb_simulador1_idx",
+        using: "BTREE",
+        fields: [
+          { name: "idSimulador" },
+        ]
+      },
+      {
+        name: "fk_tb_resultados_tb_categoria_elo1_idx",
+        using: "BTREE",
+        fields: [
+          { name: "idCategoriaELO" },
         ]
       },
     ]
