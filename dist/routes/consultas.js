@@ -22,5 +22,6 @@ routerConsultas.get('/calendario', consultas_1.getCalendario);
 routerConsultas.get('/simuladores/:id', consultas_1.getSimuladores);
 routerConsultas.get('/licencias/:id', consultas_1.getLicencias);
 routerConsultas.get('/reportes/:id', consultas_1.getReportes);
+routerConsultas.get('/resultados/:id', consultas_1.getResultados);
 exports.default = routerConsultas;
 //# sourceMappingURL=consultas.js.map

@@ -482,3 +482,32 @@ export const getReportes = async (req: Request, res: Response) => {
     });
   }
 };
+export const getResultados = async (req: Request, res: Response) => {
+
+  const {id} = req.params;
+  const query = `SELECT rutaimagencompleta(tb_simulador.logo) AS LOGO, tb_calendario.fechaHoraCarrera AS Fecha, tb_calendario.codFecha AS Fecha_No, tb_torneos.nombre AS Torneo, tb_divisiones.nombre AS Division, tb_calendario.nombreEvento AS Evento, tb_ident_pos.nombre AS Posicion, tb_resultados.nuevoELO, tb_resultados.nuevoSR, tb_torneos.linkOficial FROM ( tb_calendario INNER JOIN( ( ( tb_resultados INNER JOIN tb_divisiones ON tb_resultados.idNombreDivision = tb_divisiones.id ) INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo ) LEFT JOIN tb_simulador ON tb_torneos.idSimulador = tb_simulador.id ) ON tb_calendario.id = tb_resultados.idCalendario ) INNER JOIN tb_ident_pos ON tb_resultados.idPosicion = tb_ident_pos.id WHERE ( ( (tb_calendario.idEstadoCarrera) = 2 ) AND((tb_resultados.idPiloto) = ${id}) ) ORDER BY tb_calendario.id DESC LIMIT 10;`
+
+  try {
+    const resultados = await models.tb_calendario.sequelize.query(
+      query,
+      { type: QueryTypes.SELECT }
+    );
+    if(resultados.length > 0) {
+      return res.status(200).json({
+        ok:true,
+        resultados
+      })
+    } else {
+      return res.status(404).json({
+        ok:false,
+        msg:'No cuentas con resultados'
+      })
+    }
+  }  catch (error) {
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+
+}
