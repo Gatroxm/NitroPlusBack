@@ -106,7 +106,7 @@ const getPilotosDesActivados = (req, res) => __awaiter(void 0, void 0, void 0, f
         [Op.or]: [
             {
                 nombreCorto: {
-                    [Op.like]: `${param}%`,
+                    [Op.like]: `%${param}%`,
                 },
             },
         ],
@@ -122,6 +122,10 @@ const getPilotosDesActivados = (req, res) => __awaiter(void 0, void 0, void 0, f
             attributes: ["id", "nombreCorto", "discordId", "whatsapp", "idEstado"],
             where: where,
             offset: 1,
+            order: [
+                // Will escape title and validate DESC against a list of valid direction parameters
+                ['nombreCorto', 'ASC'],
+            ],
         });
         res.json({
             ok: true,
@@ -153,6 +157,7 @@ const updatePilotoInActivo = (req, res) => __awaiter(void 0, void 0, void 0, fun
                     correoElectronico: useremail,
                     DISCORD_ID: DISCORD_ID,
                     password: hashedPassword,
+                    aceptaCondiciones: 1
                 }, {
                     where: {
                         id: PK_ID_PILOTO,

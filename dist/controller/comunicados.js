@@ -19,9 +19,9 @@ const getComunicados = (req, res) => __awaiter(void 0, void 0, void 0, function*
             where: {
                 activo: 1
             },
-            orderBy: {
-                id: 'desc'
-            }
+            order: [
+                ['id', 'DESC'],
+            ]
         });
         if (comunicados.length > 0) {
             return res.status(200).json({

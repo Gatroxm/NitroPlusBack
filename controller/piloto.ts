@@ -97,10 +97,11 @@ export const getPilotosDesActivados = async (req: Request, res: Response) => {
     [Op.or]: [
       {
         nombreCorto: {
-          [Op.like]: `${param}%`,
+          [Op.like]: `%${param}%`,
         },
       },
     ],
+    
   };
   if (param === "" || param === undefined) {
     where = {
@@ -113,6 +114,10 @@ export const getPilotosDesActivados = async (req: Request, res: Response) => {
       attributes: ["id", "nombreCorto", "discordId", "whatsapp", "idEstado"],
       where: where,
       offset: 1,
+      order: [
+        // Will escape title and validate DESC against a list of valid direction parameters
+        ['nombreCorto', 'ASC'],
+      ],
     });
 
     res.json({
@@ -144,6 +149,7 @@ export const updatePilotoInActivo = async (req: Request, res: Response) => {
             correoElectronico: useremail,
             DISCORD_ID: DISCORD_ID,
             password: hashedPassword,
+            aceptaCondiciones:1
           },
           {
             where: {

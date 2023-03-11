@@ -10,9 +10,9 @@ export const getComunicados = async (req: Request, res: Response) => {
             where: {
                 activo:1
             },
-            orderBy: {
-                id: 'desc'
-            }
+            order: [
+                ['id','DESC'],
+              ]
         });
         if(comunicados.length > 0) {
             return res.status(200).json({
