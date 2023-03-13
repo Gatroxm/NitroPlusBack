@@ -150,11 +150,13 @@ const updatePilotoInActivo = (req, res) => __awaiter(void 0, void 0, void 0, fun
             }
             else {
                 console.log(hashedPassword);
+                const correo = useremail.trim();
+                const tel = whatsapp.trim();
                 const piloto = yield models.tb_pilotos.update({
                     idEstado: 1,
                     // zona_horaria: zona_horaria,
-                    whatsapp: whatsapp,
-                    correoElectronico: useremail,
+                    whatsapp: tel,
+                    correoElectronico: correo,
                     DISCORD_ID: DISCORD_ID,
                     password: hashedPassword,
                     aceptaCondiciones: 1
@@ -190,48 +192,57 @@ exports.updatePilotoInActivo = updatePilotoInActivo;
 const createPiloto = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nombre, apellido, nombreCorto, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, password, whatsapp, created_at, update_at, idMando, discordId, nombreDiscord, canal_twitch, canal_facebook, canal_youtube, aceptaCondiciones, } = req.body;
     try {
-        const mismoPiloto = yield models.tb_pilotos.findAll({
-            where: {
-                correoElectronico,
-            },
-        });
-        if (mismoPiloto.length > 0) {
-            return res.json({
-                ok: false,
-                msn: `el correo ${correoElectronico} ya se encuentra registrado`,
-            });
-        }
-        else {
-            const ultimo = yield models.tb_pilotos.findAll({});
-            const piloto = yield models.tb_pilotos.create({
-                nombre,
-                apellido,
-                nombreCorto: `piloto N° ${ultimo[ultimo.length - 1].id + 3}`,
-                idEstado,
-                fechaNacimiento,
-                idNacionalidad,
-                ciudad,
-                departamento,
-                idPaisResidencia,
-                resena,
-                correoElectronico,
-                password,
-                whatsapp,
-                created_at,
-                update_at,
-                idMando,
-                discordId,
-                nombreDiscord,
-                canal_twitch,
-                canal_facebook,
-                canal_youtube,
-                aceptaCondiciones,
-            });
-            return res.json({
-                ok: true,
-                piloto,
-            });
-        }
+        bcrypt.hash(password, 10, (err, hashedPassword) => __awaiter(void 0, void 0, void 0, function* () {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                const mismoPiloto = yield models.tb_pilotos.findAll({
+                    where: {
+                        correoElectronico,
+                    },
+                });
+                if (mismoPiloto.length > 0) {
+                    return res.json({
+                        ok: false,
+                        msn: `el correo ${correoElectronico} ya se encuentra registrado`,
+                    });
+                }
+                else {
+                    const correo = correoElectronico.trim();
+                    const tel = whatsapp.trim();
+                    const ultimo = yield models.tb_pilotos.findAll({});
+                    const piloto = yield models.tb_pilotos.create({
+                        nombre,
+                        apellido,
+                        nombreCorto: `piloto N° ${ultimo[ultimo.length - 1].id + 3}`,
+                        idEstado,
+                        fechaNacimiento,
+                        idNacionalidad,
+                        ciudad,
+                        departamento,
+                        idPaisResidencia,
+                        resena,
+                        correo,
+                        hashedPassword,
+                        tel,
+                        created_at,
+                        update_at,
+                        idMando,
+                        discordId,
+                        nombreDiscord,
+                        canal_twitch,
+                        canal_facebook,
+                        canal_youtube,
+                        aceptaCondiciones,
+                    });
+                    return res.json({
+                        ok: true,
+                        piloto,
+                    });
+                }
+            }
+        }));
     }
     catch (error) {
         console.log(error);

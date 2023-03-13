@@ -141,12 +141,14 @@ export const updatePilotoInActivo = async (req: Request, res: Response) => {
         console.log(err);
       } else {
         console.log(hashedPassword);
+        const correo = useremail.trim()
+        const tel = whatsapp.trim()
         const piloto = await models.tb_pilotos.update(
           {
             idEstado: 1,
             // zona_horaria: zona_horaria,
-            whatsapp: whatsapp,
-            correoElectronico: useremail,
+            whatsapp: tel,
+            correoElectronico: correo,
             DISCORD_ID: DISCORD_ID,
             password: hashedPassword,
             aceptaCondiciones:1
@@ -206,48 +208,57 @@ export const createPiloto = async (req: Request, res: Response) => {
   } = req.body;
 
   try {
-    const mismoPiloto = await models.tb_pilotos.findAll({
-      where: {
-        correoElectronico,
-      },
+    bcrypt.hash(password, 10, async (err: any, hashedPassword: any) => {
+      if (err) {
+        console.log(err);
+      } else {
+        const mismoPiloto = await models.tb_pilotos.findAll({
+          where: {
+            correoElectronico,
+          },
+        });
+        if (mismoPiloto.length > 0) {
+          return res.json({
+            ok: false,
+            msn: `el correo ${correoElectronico} ya se encuentra registrado`,
+          });
+        } else {
+          const correo = correoElectronico.trim()
+          const tel = whatsapp.trim()
+          const ultimo = await models.tb_pilotos.findAll({});
+          const piloto = await models.tb_pilotos.create({
+            nombre,
+            apellido,
+            nombreCorto: `piloto N° ${ultimo[ultimo.length - 1].id + 3}`,
+            idEstado,
+            fechaNacimiento,
+            idNacionalidad,
+            ciudad,
+            departamento,
+            idPaisResidencia,
+            resena,
+            correo,
+            hashedPassword,
+            tel,
+            created_at,
+            update_at,
+            idMando,
+            discordId,
+            nombreDiscord,
+            canal_twitch,
+            canal_facebook,
+            canal_youtube,
+            aceptaCondiciones,
+          });
+    
+          return res.json({
+            ok: true,
+            piloto,
+          });
+        }
+      }
     });
-    if (mismoPiloto.length > 0) {
-      return res.json({
-        ok: false,
-        msn: `el correo ${correoElectronico} ya se encuentra registrado`,
-      });
-    } else {
-      const ultimo = await models.tb_pilotos.findAll({});
-      const piloto = await models.tb_pilotos.create({
-        nombre,
-        apellido,
-        nombreCorto: `piloto N° ${ultimo[ultimo.length - 1].id + 3}`,
-        idEstado,
-        fechaNacimiento,
-        idNacionalidad,
-        ciudad,
-        departamento,
-        idPaisResidencia,
-        resena,
-        correoElectronico,
-        password,
-        whatsapp,
-        created_at,
-        update_at,
-        idMando,
-        discordId,
-        nombreDiscord,
-        canal_twitch,
-        canal_facebook,
-        canal_youtube,
-        aceptaCondiciones,
-      });
-
-      return res.json({
-        ok: true,
-        piloto,
-      });
-    }
+    
   } catch (error) {
     console.log(error);
     return res.status(500).json({
