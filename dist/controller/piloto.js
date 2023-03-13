@@ -68,8 +68,6 @@ const LogIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const piloto = yield models.tb_pilotos.findOne({
             where: { correoElectronico: email },
         });
-        console.log(password);
-        console.log(piloto.dataValues.password);
         bcrypt.compare(password, piloto.dataValues.password, (err, result) => {
             console.log(result);
             if (err) {
@@ -102,7 +100,6 @@ exports.LogIn = LogIn;
 const getPilotosDesActivados = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const param = req.query.param;
     let where = {
-        idEstado: 0,
         [Op.or]: [
             {
                 nombreCorto: {
@@ -110,6 +107,7 @@ const getPilotosDesActivados = (req, res) => __awaiter(void 0, void 0, void 0, f
                 },
             },
         ],
+        idEstado: 0
     };
     if (param === "" || param === undefined) {
         where = {
@@ -117,13 +115,11 @@ const getPilotosDesActivados = (req, res) => __awaiter(void 0, void 0, void 0, f
         };
     }
     try {
-        const PilotosEditados = [];
         const pilotos = yield models.tb_pilotos.findAll({
             attributes: ["id", "nombreCorto", "discordId", "whatsapp", "idEstado"],
             where: where,
-            offset: 1,
+            // offset: 1,
             order: [
-                // Will escape title and validate DESC against a list of valid direction parameters
                 ['nombreCorto', 'ASC'],
             ],
         });
@@ -150,8 +146,8 @@ const updatePilotoInActivo = (req, res) => __awaiter(void 0, void 0, void 0, fun
             }
             else {
                 console.log(hashedPassword);
-                const correo = useremail.trim();
-                const tel = whatsapp.trim();
+                const correo = useremail.replace(/\s+/g, '');
+                const tel = whatsapp.replace(/\s+/g, '');
                 const piloto = yield models.tb_pilotos.update({
                     idEstado: 1,
                     // zona_horaria: zona_horaria,
@@ -209,13 +205,19 @@ const createPiloto = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                     });
                 }
                 else {
-                    const correo = correoElectronico.trim();
-                    const tel = whatsapp.trim();
-                    const ultimo = yield models.tb_pilotos.findAll({});
+                    const correo = correoElectronico.replace(/\s+/g, '');
+                    const tel = whatsapp.replace(/\s+/g, '');
+                    const ultimo = yield models.tb_pilotos.findAll({
+                        order: [
+                            // Will escape title and validate DESC against a list of valid direction parameters
+                            ['id', 'DESC'],
+                        ],
+                        limit: 1
+                    });
                     const piloto = yield models.tb_pilotos.create({
                         nombre,
                         apellido,
-                        nombreCorto: `piloto N° ${ultimo[ultimo.length - 1].id + 3}`,
+                        nombreCorto: `piloto N° ${ultimo[0].id + 1}`,
                         idEstado,
                         fechaNacimiento,
                         idNacionalidad,
@@ -223,9 +225,9 @@ const createPiloto = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                         departamento,
                         idPaisResidencia,
                         resena,
-                        correo,
-                        hashedPassword,
-                        tel,
+                        correoElectronico: correo,
+                        password: hashedPassword,
+                        whatsapp: tel,
                         created_at,
                         update_at,
                         idMando,
@@ -300,6 +302,8 @@ exports.changePassword = changePassword;
 const updatePiloto = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id, nombre, apellido, idEstado, fechaNacimiento, idNacionalidad, ciudad, departamento, idPaisResidencia, resena, correoElectronico, whatsapp, idMando, discordId, canal_youtube, canal_twitch, canal_facebook, instagram } = req.body;
     try {
+        const correo = correoElectronico.replace(/\s+/g, '');
+        const tel = whatsapp.replace(/\s+/g, '');
         const piloto = yield models.tb_pilotos.update({
             id,
             nombre,
@@ -311,8 +315,8 @@ const updatePiloto = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             departamento,
             idPaisResidencia,
             resena,
-            correoElectronico,
-            whatsapp,
+            correoElectronico: correo,
+            whatsapp: tel,
             idMando,
             discordId,
             canal_youtube,

@@ -57,8 +57,6 @@ export const LogIn = async (req: Request, res: Response) => {
     const piloto = await models.tb_pilotos.findOne({
       where: { correoElectronico: email },
     });
-    console.log(password)
-    console.log(piloto.dataValues.password)
     bcrypt.compare(
       password,
       piloto.dataValues.password,
@@ -93,7 +91,7 @@ export const LogIn = async (req: Request, res: Response) => {
 export const getPilotosDesActivados = async (req: Request, res: Response) => {
   const param = req.query.param;
   let where: any = {
-    idEstado: 0,
+    
     [Op.or]: [
       {
         nombreCorto: {
@@ -101,6 +99,7 @@ export const getPilotosDesActivados = async (req: Request, res: Response) => {
         },
       },
     ],
+    idEstado: 0
     
   };
   if (param === "" || param === undefined) {
@@ -108,14 +107,12 @@ export const getPilotosDesActivados = async (req: Request, res: Response) => {
       idEstado: 0,
     };
   }
-  try {
-    const PilotosEditados: any = [];
+  try { 
     const pilotos = await models.tb_pilotos.findAll({
       attributes: ["id", "nombreCorto", "discordId", "whatsapp", "idEstado"],
       where: where,
-      offset: 1,
+      // offset: 1,
       order: [
-        // Will escape title and validate DESC against a list of valid direction parameters
         ['nombreCorto', 'ASC'],
       ],
     });
@@ -141,8 +138,8 @@ export const updatePilotoInActivo = async (req: Request, res: Response) => {
         console.log(err);
       } else {
         console.log(hashedPassword);
-        const correo = useremail.trim()
-        const tel = whatsapp.trim()
+        const correo = useremail.replace(/\s+/g, '')
+        const tel = whatsapp.replace(/\s+/g, '')
         const piloto = await models.tb_pilotos.update(
           {
             idEstado: 1,
@@ -223,13 +220,19 @@ export const createPiloto = async (req: Request, res: Response) => {
             msn: `el correo ${correoElectronico} ya se encuentra registrado`,
           });
         } else {
-          const correo = correoElectronico.trim()
-          const tel = whatsapp.trim()
-          const ultimo = await models.tb_pilotos.findAll({});
+          const correo = correoElectronico.replace(/\s+/g, '');
+          const tel = whatsapp.replace(/\s+/g, '');
+          const ultimo = await models.tb_pilotos.findAll({
+            order: [
+              // Will escape title and validate DESC against a list of valid direction parameters
+              ['id', 'DESC'],
+            ],
+            limit:1
+          });
           const piloto = await models.tb_pilotos.create({
             nombre,
             apellido,
-            nombreCorto: `piloto N° ${ultimo[ultimo.length - 1].id + 3}`,
+            nombreCorto: `piloto N° ${ultimo[0].id + 1}`,
             idEstado,
             fechaNacimiento,
             idNacionalidad,
@@ -237,9 +240,9 @@ export const createPiloto = async (req: Request, res: Response) => {
             departamento,
             idPaisResidencia,
             resena,
-            correo,
-            hashedPassword,
-            tel,
+            correoElectronico:correo,
+            password:hashedPassword,
+            whatsapp:tel,
             created_at,
             update_at,
             idMando,
@@ -313,7 +316,7 @@ export const changePassword = async (req: Request, res: Response) => {
   }
 };
 
-export const updatePiloto = async (req: Request, res: Response) => {
+export const updatePiloto = async (req: Request, res: Response) => {  
   const {
     id,
     nombre,
@@ -335,6 +338,8 @@ export const updatePiloto = async (req: Request, res: Response) => {
     instagram
   } = req.body;
   try {
+    const correo = correoElectronico.replace(/\s+/g, '');
+    const tel = whatsapp.replace(/\s+/g, '');
     const piloto = await models.tb_pilotos.update(
       {
         id,
@@ -347,8 +352,8 @@ export const updatePiloto = async (req: Request, res: Response) => {
         departamento,
         idPaisResidencia,
         resena,
-        correoElectronico,
-        whatsapp,
+        correoElectronico:correo,
+        whatsapp:tel,
         idMando,
         discordId,
         canal_youtube,
