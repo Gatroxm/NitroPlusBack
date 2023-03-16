@@ -340,6 +340,7 @@ export const updatePiloto = async (req: Request, res: Response) => {
   try {
     const correo = correoElectronico.replace(/\s+/g, '');
     const tel = whatsapp.replace(/\s+/g, '');
+
     const piloto = await models.tb_pilotos.update(
       {
         id,
