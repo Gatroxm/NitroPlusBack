@@ -11,6 +11,7 @@ import routerMandos from "../routes/mandos";
 import routerSimuladores from "../routes/simuladores";
 import routerNotificaciones from "../routes/notificaciones";
 import routerComunicados from "../routes/comunicados";
+import routerCards from "../routes/cards";
 
 class Server {
 
@@ -26,6 +27,7 @@ class Server {
         simuladores: '/api/simuladores',
         notificaciones: '/api/notificaciones',
         comunicados: '/api/comunicados',
+        cards: '/api/cards',
     }
 
     constructor(){
@@ -68,6 +70,7 @@ class Server {
         this.app.use(this.apiPaths.simuladores, routerSimuladores );
         this.app.use(this.apiPaths.notificaciones, routerNotificaciones );
         this.app.use(this.apiPaths.comunicados, routerComunicados );
+        this.app.use(this.apiPaths.cards, routerCards );
     }
 
     lisent() {

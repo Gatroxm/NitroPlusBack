@@ -106,6 +106,7 @@ var _tb_sistema_puntos = require("./tb_sistema_puntos");
 var _tb_sr_actual = require("./tb_sr_actual");
 var _tb_sr_variacion = require("./tb_sr_variacion");
 var _tb_subtramos = require("./tb_subtramos");
+var _tb_tabla_posiciones = require("./tb_tabla_posiciones");
 var _tb_tabla_sanciones = require("./tb_tabla_sanciones");
 var _tb_tabla_sanciones_sim = require("./tb_tabla_sanciones_sim");
 var _tb_tickets = require("./tb_tickets");
@@ -230,6 +231,7 @@ export const  initModels = (sequelize:any = connection.default) => {
   var tb_sr_actual = _tb_sr_actual(sequelize, DataTypes);
   var tb_sr_variacion = _tb_sr_variacion(sequelize, DataTypes);
   var tb_subtramos = _tb_subtramos(sequelize, DataTypes);
+  var tb_tabla_posiciones = _tb_tabla_posiciones(sequelize, DataTypes);
   var tb_tabla_sanciones = _tb_tabla_sanciones(sequelize, DataTypes);
   var tb_tabla_sanciones_sim = _tb_tabla_sanciones_sim(sequelize, DataTypes);
   var tb_tickets = _tb_tickets(sequelize, DataTypes);
@@ -972,6 +974,7 @@ export const  initModels = (sequelize:any = connection.default) => {
     tb_sr_actual,
     tb_sr_variacion,
     tb_subtramos,
+    tb_tabla_posiciones,
     tb_tabla_sanciones,
     tb_tabla_sanciones_sim,
     tb_tickets,

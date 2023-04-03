@@ -32,5 +32,34 @@ export const getNotificaciones = async (req: Request, res: Response) => {
         });
       }
 
+}
 
+export const updateNotification = async (req: Request, res: Response) => {
+  const {id} = req.params;
+  try{
+
+    const notification = await models.tb_notificaciones.update({
+      esleido:1
+    },{
+      where: {
+        id,
+      },
+    })
+    if (notification[0] === 1) {
+      return res.json({
+        ok: true,
+        msg: "Notificación  actualizada",
+      });
+    } else {
+      return res.json({
+        ok: false,
+        msg: "La notificación no se puede actualizar por que o no existe o no detecta cambios",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
 }

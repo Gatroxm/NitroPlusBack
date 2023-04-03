@@ -8047,3 +8047,12 @@ File: scss
         overflow: hidden;
     }
 }
+
+.btn-estandar-cards {
+    width: 130px;
+    margin-bottom: 5px;
+}
+
+.text-rigth {
+    text-align: right;
+}

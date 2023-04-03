@@ -24,6 +24,7 @@ const mandos_1 = __importDefault(require("../routes/mandos"));
 const simuladores_1 = __importDefault(require("../routes/simuladores"));
 const notificaciones_1 = __importDefault(require("../routes/notificaciones"));
 const comunicados_1 = __importDefault(require("../routes/comunicados"));
+const cards_1 = __importDefault(require("../routes/cards"));
 class Server {
     constructor() {
         this.apiPaths = {
@@ -35,6 +36,7 @@ class Server {
             simuladores: '/api/simuladores',
             notificaciones: '/api/notificaciones',
             comunicados: '/api/comunicados',
+            cards: '/api/cards',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '3000';
@@ -70,6 +72,7 @@ class Server {
         this.app.use(this.apiPaths.simuladores, simuladores_1.default);
         this.app.use(this.apiPaths.notificaciones, notificaciones_1.default);
         this.app.use(this.apiPaths.comunicados, comunicados_1.default);
+        this.app.use(this.apiPaths.cards, cards_1.default);
     }
     lisent() {
         this.app.listen(this.port, () => {
