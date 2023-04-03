@@ -13,5 +13,6 @@ routerCards.get('/tabla-confirmados/:id', cards_1.tablaConfirmados);
 routerCards.get('/modal-informacion-generla/:id', cards_1.modalInformacionGeneral);
 routerCards.post('/apelaciones', cards_1.InsertApelacionAclaracion);
 routerCards.post('/confirmacion', cards_1.confirmacion);
+routerCards.get('/infoTorneo/:id', cards_1.InfoTorneo);
 exports.default = routerCards;
 //# sourceMappingURL=cards.js.map

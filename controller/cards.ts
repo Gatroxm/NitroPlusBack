@@ -371,3 +371,22 @@ export const tablaConfirmados = async (req: Request, res: Response) => {
   }
 
 }
+
+export const InfoTorneo = async (req: Request, res: Response) => {
+  const response = []
+  const {id} = req.params
+  const query1 = `SELECT tb_calendario.id, tb_torneos.nombre, tb_torneos.descripcion, tb_torneos.requisitosTxt, tb_torneos.formatoTxt, convertir_a_utc(tb_torneos.fechaInicio) AS fechaInicio, convertir_a_utc(tb_torneos.fechaFin) AS fechaFin, convertir_a_utc( tb_torneos.fechaLimiteInscripcion ) AS fechaLimiteInscripcion, tb_torneos.urlInscripcionAdicional, tb_torneos.instruccionesAdicionales, tb_divisiones.requiereConfirmacion, DATE_SUB( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasAntesConfirmacionApertura HOUR ) AS horasAntesConfirmacionApertura, DATE_SUB( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasAntesConfirmacionCierre HOUR ) AS horasAntesConfirmacionCierre, tb_divisiones.permiteReservas, tb_divisiones.permiteReportes, tb_divisiones.requiereRepeticion, DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasInicioReportes HOUR ) AS horasInicioReportes, DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinReportes HOUR ) AS horasFinReportes, DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinApelaciones HOUR ) AS horasFinApelaciones, DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.plazoEnvioRepeticion HOUR ) AS plazoEnvioRepeticion, tb_divisiones.afectaIndiceParticipacion, tb_divisiones.nombre AS NombreDivision, tb_formato_carrera.nombre AS Formato, tb_calendario.horaVirtual, tb_calendario.tempAire, tb_calendario.tempPista, tb_calendario.nubosidad, tb_calendario.requisitoBoxes, tb_calendario.lluvia, tb_calendario.observaciones, tb_calendario.urlTransmision, tb_calendario.esPorEtapas, tb_calendario.noVueltasRequeridas, tb_calendario.elo_multiplicador, if(tb_calendario.mostrarPracticas=0,NULL,CONCAT('https://nitrosimracing.com.co/practicas-calendario?var1=',tb_calendario.id)) AS link_practicas FROM ( ( tb_torneos INNER JOIN tb_divisiones ON tb_torneos.idTorneo = tb_divisiones.idTorneo ) INNER JOIN tb_calendario ON tb_divisiones.id = tb_calendario.idDivision ) INNER JOIN tb_formato_carrera ON tb_calendario.idFormatoCarrera = tb_formato_carrera.id WHERE (((tb_calendario.id) = ${id}));`;
+  const query2 =`SELECT tb_reglas_torneos.reglastxt FROM tb_calendario INNER JOIN (tb_reglas_torneos INNER JOIN tb_divisiones ON tb_reglas_torneos.idTorneo = tb_divisiones.idTorneo) ON tb_calendario.idDivision = tb_divisiones.id WHERE (((tb_calendario.id)=${id}));`;
+  const infoTorneoDivision = await models.tb_torneos.sequelize.query(query1, {
+    type: QueryTypes.SELECT,
+  });
+  response.push({info: infoTorneoDivision});
+  const infoReglas = await models.tb_reglas_torneos.sequelize.query(query2, {
+    type: QueryTypes.SELECT,
+  });
+  response.push({reglas: infoReglas});
+    return res.status(200).json({
+      ok: true,
+      response,
+    });
+}

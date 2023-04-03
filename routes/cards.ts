@@ -10,6 +10,7 @@ import {
     InsertApelacionAclaracion,
     confirmacion,
     tablaConfirmados,
+    InfoTorneo,
  } from "../controller/cards";
 
 const routerCards = Router();
@@ -24,5 +25,6 @@ routerCards.get('/tabla-confirmados/:id', tablaConfirmados);
 routerCards.get('/modal-informacion-generla/:id', modalInformacionGeneral);
 routerCards.post('/apelaciones', InsertApelacionAclaracion);
 routerCards.post('/confirmacion', confirmacion); 
+routerCards.get('/infoTorneo/:id', InfoTorneo); 
 
 export default routerCards;

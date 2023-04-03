@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.initModels = void 0;
 const sequelize_1 = require("sequelize");
 const connection = require("../db/connection");
+var _tb_reglas_torneos = require("./tb_reglas_torneos");
 var _tb_analisis_stint = require("./tb_analisis_stint");
 var _tb_asignacion_comisario = require("./tb_asignacion_comisario");
 var _tb_asignacion_tipo_tickets = require("./tb_asignacion_tipo_tickets");
@@ -126,6 +127,7 @@ var _tb_tipos_transmisiones = require("./tb_tipos_transmisiones");
 var _tb_torneos = require("./tb_torneos");
 var _tb_webhooks_discord = require("./tb_webhooks_discord");
 const initModels = (sequelize = connection.default) => {
+    var tb_reglas_torneos = _tb_reglas_torneos(sequelize, sequelize_1.DataTypes);
     var tb_analisis_stint = _tb_analisis_stint(sequelize, sequelize_1.DataTypes);
     var tb_asignacion_comisario = _tb_asignacion_comisario(sequelize, sequelize_1.DataTypes);
     var tb_asignacion_tipo_tickets = _tb_asignacion_tipo_tickets(sequelize, sequelize_1.DataTypes);
@@ -867,6 +869,7 @@ const initModels = (sequelize = connection.default) => {
     tb_notificaciones_discord.belongsTo(tb_webhooks_discord, { as: "idwebhook_tb_webhooks_discord", foreignKey: "idwebhook" });
     tb_webhooks_discord.hasMany(tb_notificaciones_discord, { as: "tb_notificaciones_discords", foreignKey: "idwebhook" });
     return {
+        tb_reglas_torneos,
         tb_analisis_stint,
         tb_asignacion_comisario,
         tb_asignacion_tipo_tickets,

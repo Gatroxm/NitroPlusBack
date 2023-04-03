@@ -42,4 +42,5 @@ routerConsultas.get('/reportes/:id', getReportes );
 routerConsultas.get('/resultados/:id', getResultados );
 
 
+
 export default routerConsultas;
