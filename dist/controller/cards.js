@@ -310,7 +310,6 @@ const confirmacion = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         }
     }
     catch (error) {
-        console.log(error);
         return res.status(500).json({
             ok: false,
             error: error,

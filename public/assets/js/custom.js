@@ -5,7 +5,6 @@ Email: niravjoshi87@gmail.com
 File: js
 */
 const customInitFunctions = () => {
-    console.log('data')
     $(function() {
         "use strict";
         $(function() {
@@ -44,7 +43,6 @@ const customInitFunctions = () => {
         // Theme options
         // ==============================================================     
         // $(".sidebartoggler").on('click', function() {
-        //     console.log('data')
         //     if ($("body").hasClass("mini-sidebar")) {
         //         $("body").trigger("resize");
         //         $("body").removeClass("mini-sidebar");

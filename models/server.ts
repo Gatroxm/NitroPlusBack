@@ -12,6 +12,7 @@ import routerSimuladores from "../routes/simuladores";
 import routerNotificaciones from "../routes/notificaciones";
 import routerComunicados from "../routes/comunicados";
 import routerCards from "../routes/cards";
+import routerLicencias from "../routes/licencias";
 
 class Server {
 
@@ -28,6 +29,7 @@ class Server {
         notificaciones: '/api/notificaciones',
         comunicados: '/api/comunicados',
         cards: '/api/cards',
+        licencias: '/api/licencias',
     }
 
     constructor(){
@@ -71,6 +73,7 @@ class Server {
         this.app.use(this.apiPaths.notificaciones, routerNotificaciones );
         this.app.use(this.apiPaths.comunicados, routerComunicados );
         this.app.use(this.apiPaths.cards, routerCards );
+        this.app.use(this.apiPaths.licencias, routerLicencias );
     }
 
     lisent() {

@@ -9,6 +9,7 @@ var _tb_asignacion_comisario = require("./tb_asignacion_comisario");
 var _tb_asignacion_tipo_tickets = require("./tb_asignacion_tipo_tickets");
 var _tb_banner_patrocinadores = require("./tb_banner_patrocinadores");
 var _tb_banners_menu = require("./tb_banners_menu");
+var _tb_calendario_clasificatorios = require("./tb_calendario_clasificatorios");
 var _tb_calendario = require("./tb_calendario");
 var _tb_cat_coches = require("./tb_cat_coches");
 var _tb_cat_piloto = require("./tb_cat_piloto");
@@ -133,6 +134,7 @@ const initModels = (sequelize = connection.default) => {
     var tb_asignacion_tipo_tickets = _tb_asignacion_tipo_tickets(sequelize, sequelize_1.DataTypes);
     var tb_banner_patrocinadores = _tb_banner_patrocinadores(sequelize, sequelize_1.DataTypes);
     var tb_banners_menu = _tb_banners_menu(sequelize, sequelize_1.DataTypes);
+    var tb_calendario_clasificatorios = _tb_calendario_clasificatorios(sequelize, sequelize_1.DataTypes);
     var tb_calendario = _tb_calendario(sequelize, sequelize_1.DataTypes);
     var tb_cat_coches = _tb_cat_coches(sequelize, sequelize_1.DataTypes);
     var tb_cat_piloto = _tb_cat_piloto(sequelize, sequelize_1.DataTypes);
@@ -875,6 +877,7 @@ const initModels = (sequelize = connection.default) => {
         tb_asignacion_tipo_tickets,
         tb_banner_patrocinadores,
         tb_banners_menu,
+        tb_calendario_clasificatorios,
         tb_calendario,
         tb_cat_coches,
         tb_cat_piloto,

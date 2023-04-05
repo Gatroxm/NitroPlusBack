@@ -24,7 +24,6 @@ export const getComunicados = async (req: Request, res: Response) => {
               })
         }
     } catch (error) {
-        console.log(error)
         return res.status(500).json({
           ok: false,
           error: error,
