@@ -26,6 +26,8 @@ const notificaciones_1 = __importDefault(require("../routes/notificaciones"));
 const comunicados_1 = __importDefault(require("../routes/comunicados"));
 const cards_1 = __importDefault(require("../routes/cards"));
 const licencias_1 = __importDefault(require("../routes/licencias"));
+const torneo_1 = __importDefault(require("../routes/torneo"));
+const roles_1 = __importDefault(require("../routes/roles"));
 class Server {
     constructor() {
         this.apiPaths = {
@@ -39,6 +41,8 @@ class Server {
             comunicados: '/api/comunicados',
             cards: '/api/cards',
             licencias: '/api/licencias',
+            torneo: '/api/torneo',
+            rol: '/api/rol',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '3000';
@@ -76,6 +80,8 @@ class Server {
         this.app.use(this.apiPaths.comunicados, comunicados_1.default);
         this.app.use(this.apiPaths.cards, cards_1.default);
         this.app.use(this.apiPaths.licencias, licencias_1.default);
+        this.app.use(this.apiPaths.torneo, torneo_1.default);
+        this.app.use(this.apiPaths.rol, roles_1.default);
     }
     lisent() {
         this.app.listen(this.port, () => {

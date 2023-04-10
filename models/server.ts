@@ -13,6 +13,8 @@ import routerNotificaciones from "../routes/notificaciones";
 import routerComunicados from "../routes/comunicados";
 import routerCards from "../routes/cards";
 import routerLicencias from "../routes/licencias";
+import routerTorneos from "../routes/torneo";
+import routerRoles from "../routes/roles";
 
 class Server {
 
@@ -30,6 +32,8 @@ class Server {
         comunicados: '/api/comunicados',
         cards: '/api/cards',
         licencias: '/api/licencias',
+        torneo: '/api/torneo',
+        rol: '/api/rol',
     }
 
     constructor(){
@@ -74,6 +78,8 @@ class Server {
         this.app.use(this.apiPaths.comunicados, routerComunicados );
         this.app.use(this.apiPaths.cards, routerCards );
         this.app.use(this.apiPaths.licencias, routerLicencias );
+        this.app.use(this.apiPaths.torneo, routerTorneos );
+        this.app.use(this.apiPaths.rol, routerRoles );
     }
 
     lisent() {
