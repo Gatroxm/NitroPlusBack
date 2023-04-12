@@ -7,7 +7,7 @@ const models = initModels(sequelize);
 
 export const getInscritosTorneo = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const query = `SELECT t.*, RutaImagenCompleta(t.imgLogo) AS rutaimgLogo, RutaImagenCompleta(t.imgCuadro) AS rutaimgCuadro, convertir_a_utc(t.fechaInicio) AS convfechadeInicio, convertir_a_utc(t.fechaFin) AS convfechadeFin, convertir_a_utc(t.fechaLimiteInscripcion) AS convfechafinInscripcion, e.valorELO, sr.valorSR, pt.participaciones, pt.indicadorCumplimiento, ( SELECT COUNT(*) FROM tb_divisiones d WHERE d.idTorneo = t.idTorneo ) AS DivisionesTorneo, EXISTS( SELECT * FROM tb_inscripciones WHERE idPiloto = ${id} AND idTorneo = t.idTorneo ) AS EstaInscrito, ( SELECT COUNT(*) FROM tb_divisiones d WHERE d.idTorneo = t.idTorneo AND d.permiteReservas = 1 AND COALESCE(e.valorELO, 0) >= COALESCE(d.minEloReserva, 0) AND COALESCE(sr.valorSR, 0) >= COALESCE(d.minSrReserva, 0) AND COALESCE(pt.participaciones, 0) >= COALESCE(d.minParticipacionesReserva, 0) AND COALESCE(pt.indicadorCumplimiento, 0) >= COALESCE(d.minCumplimientoReserva, 0) ) AS DivisionesPuedeSerReserva, ( SELECT COUNT(*) FROM tb_divisiones_pilotos dp INNER JOIN tb_inscripciones i ON dp.idInscripcion = i.id WHERE i.idTorneo = t.idTorneo AND dp.idTipoPiloto = 1 AND i.idPiloto = ${id} ) AS InscritoEnDivisionComoTitular, ( SELECT COUNT(*) FROM tb_divisiones_pilotos dp INNER JOIN tb_inscripciones i ON dp.idInscripcion = i.id WHERE i.idTorneo = t.idTorneo AND i.idPiloto = ${id} ) AS InscritoEnDivisionesgeneral, CASE WHEN COUNT(DISTINCT s.idSimCodPlat) > 0 AND COUNT(DISTINCT p.idSimCodPlataforma) = 0 THEN 0 WHEN t.requierePreclasificatorio = 1 AND COUNT(DISTINCT c.idClasificatorio) = 0 THEN 0 WHEN t.idCategoriaELO IS NOT NULL AND t.idCategoriaELO <> COALESCE(e.idCategoriaELO, 0) THEN 0 WHEN t.maxELO IS NOT NULL AND COALESCE(e.valorELO, 0) >= t.maxELO THEN 0 WHEN t.minELO IS NOT NULL AND COALESCE(e.valorELO, 0) <= t.minELO THEN 0 WHEN t.minSR IS NOT NULL AND COALESCE(sr.valorSR, 0) <= t.minSR THEN 0 WHEN t.maxSR IS NOT NULL AND COALESCE(sr.valorSR, 0) >= t.maxSR THEN 0 WHEN t.minParticipaciones IS NOT NULL AND COALESCE(pt.participaciones, 0) <= t.minParticipaciones THEN 0 WHEN t.maxParticipaciones IS NOT NULL AND COALESCE(pt.participaciones, 0) >= t.maxParticipaciones THEN 0 WHEN t.minIndiceCumplimiento IS NOT NULL AND COALESCE(pt.indicadorCumplimiento, 0) <= t.minIndiceCumplimiento THEN 0 WHEN t.maxIndiceCumplimiento IS NOT NULL AND COALESCE(pt.indicadorCumplimiento, 0) >= t.maxIndiceCumplimiento THEN 0 ELSE 1 END AS idCumple, CASE WHEN COUNT(DISTINCT s.idSimCodPlat) > 0 AND COUNT(DISTINCT p.idSimCodPlataforma) = 0 THEN 'No tienes el identificador' WHEN t.requierePreclasificatorio = 1 AND COUNT(DISTINCT c.idClasificatorio) = 0 THEN 'No tienes la clasificatoria requerida' WHEN t.idCategoriaELO IS NOT NULL AND t.idCategoriaELO <> COALESCE(e.idCategoriaELO, 0) THEN 'No tienes la licencia requerida' WHEN t.maxELO IS NOT NULL AND COALESCE(e.valorELO, 0) >= t.maxELO THEN 'Tu elo es demasiado alto' WHEN t.minELO IS NOT NULL AND COALESCE(e.valorELO, 0) <= t.minELO THEN 'Tu elo es demasiado bajo' WHEN t.minSR IS NOT NULL AND COALESCE(sr.valorSR, 0) <= t.minSR THEN 'Tu SR es demasiado bajo' WHEN t.maxSR IS NOT NULL AND COALESCE(sr.valorSR, 0) >= t.maxSR THEN 'Tu SR es demasiado alto' WHEN t.minParticipaciones IS NOT NULL AND COALESCE(pt.participaciones, 0) <= t.minParticipaciones THEN 'Tus participaciones son muy bajas' WHEN t.maxParticipaciones IS NOT NULL AND COALESCE(pt.participaciones, 0) >= t.maxParticipaciones THEN 'Tus participaciones son muy altas' WHEN t.minIndiceCumplimiento IS NOT NULL AND COALESCE(pt.indicadorCumplimiento, 0) <= t.minIndiceCumplimiento THEN 'Tu Ind. Cump. es muy bajo' WHEN t.maxIndiceCumplimiento IS NOT NULL AND COALESCE(pt.indicadorCumplimiento, 0) >= t.maxIndiceCumplimiento THEN 'Tu Ind. Cump. es muy alto' ELSE 'Estas habilitado' END AS Mensaje FROM tb_torneos t LEFT JOIN tb_simcodplat_torneo s ON t.idTorneo = s.idTorneo LEFT JOIN tb_pilotos_id_sim p ON s.idSimCodPlat = p.idSimCodPlataforma LEFT JOIN tb_opcion_clasificatorios_torneo o ON t.idTorneo = o.idTorneo AND t.requierePreclasificatorio = 1 LEFT JOIN tb_resultados_clasificatorios c ON o.idClasificatorio = c.idClasificatorio AND c.idPiloto = ${id} LEFT JOIN tb_elo_actual e ON t.idCategoriaELO = e.idCategoriaELO AND e.idPiloto = ${id} LEFT JOIN tb_sr_actual sr ON t.idSimulador = sr.idSimulador AND sr.idPiloto = ${id} LEFT JOIN tb_participaciones pt ON t.idSimulador = pt.idSimulador AND pt.idPiloto = ${id} WHERE t.idEstadoTorneo = 1 AND (t.permiteReservas = 1 OR (t.permiteReservas = 0 AND (t.fechaLimiteInscripcion IS NULL OR t.fechaLimiteInscripcion >= CURDATE()))) AND EXISTS ( SELECT * FROM tb_pilotos_liga pl WHERE pl.idPiloto = ${id} AND pl.idLiga = t.idLiga ) AND ( SELECT COUNT(*) FROM tb_divisiones d WHERE d.idTorneo = t.idTorneo AND d.permiteReservas = 1 AND COALESCE(e.valorELO, 0) >= COALESCE(d.minEloReserva, 0) AND COALESCE(sr.valorSR, 0) >= COALESCE(d.minSrReserva, 0) AND COALESCE(pt.participaciones, 0) >= COALESCE(d.minParticipacionesReserva, 0) AND COALESCE(pt.indicadorCumplimiento, 0) >= COALESCE(d.minCumplimientoReserva, 0) ) > ( SELECT COUNT(*) FROM tb_divisiones_pilotos dp INNER JOIN tb_inscripciones i ON dp.idInscripcion = i.id WHERE i.idTorneo = t.idTorneo AND i.idPiloto = ${id} ) GROUP BY t.idTorneo;`;
+  const query = `SELECT RutaImagenCompleta(tb_fotos_pilotos.rutaImagen) AS Piloto, tb_pilotos.nombreCorto AS Nombre, IF( tb_sim_plat_codplat.isVisible = 1, tb_pilotos_id_sim.idSimPiloto, 'Oculto' ) AS IdSim, tb_inscripciones.noParticipacion AS NO FROM ( ( ( tb_inscripciones INNER JOIN tb_pilotos ON tb_inscripciones.idPiloto = tb_pilotos.id ) INNER JOIN tb_pilotos_id_sim ON tb_inscripciones.idPilotoIdSim = tb_pilotos_id_sim.id ) INNER JOIN tb_sim_plat_codplat ON tb_pilotos_id_sim.idSimCodPlataforma = tb_sim_plat_codplat.id ) INNER JOIN tb_fotos_pilotos ON tb_pilotos.id = tb_fotos_pilotos.idPiloto WHERE ( ( (tb_inscripciones.idTorneo) = ${id} ) AND( (tb_inscripciones.idEstadoInscr) = 1 ) AND((tb_fotos_pilotos.idTipo) = 1) ) ORDER BY tb_inscripciones.fechaInscripcion ASC;`;
 
   try {
     const inscritos = await models.tb_inscripciones.sequelize.query(query, {
@@ -93,7 +93,7 @@ export const selectIdCocheInicial = async (req: Request, res: Response) => {
 
 export const selectIdEquipoInicial = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const query = `SELECT tb_equipos.nombre, tb_equipos.id FROM ((tb_torneos INNER JOIN tb_nombre_grupo_equipos ON tb_torneos.idGrupoEquipoPersonalizado = tb_nombre_grupo_equipos.id) INNER JOIN tb_grupo_equipos ON tb_nombre_grupo_equipos.id = tb_grupo_equipos.idNombre) INNER JOIN tb_equipos ON tb_grupo_equipos.idEquipoSim = tb_equipos.id WHERE (((tb_torneos.idTorneo)=${id})) ORDER BY tb_equipos.nombre;`;
+  const query = `SELECT tb_equipos.nombre, tb_grupo_equipos.idEquipoSim FROM (((tb_torneos INNER JOIN tb_nombre_grupo_equipos ON tb_torneos.idGrupoEquipoPersonalizado =  tb_nombre_grupo_equipos.id) INNER JOIN tb_grupo_equipos ON tb_nombre_grupo_equipos.id = tb_grupo_equipos.idNombre) INNER JOIN tb_equipos_sim ON tb_grupo_equipos.idEquipoSim = tb_equipos_sim.id) INNER JOIN tb_equipos ON tb_equipos_sim.idEquipo = tb_equipos.id WHERE (((tb_torneos.idTorneo)=${id})) ORDER BY tb_equipos.nombre;`;
   try {
     const listado = await models.tb_torneos.sequelize.query(query, {
       type: QueryTypes.SELECT,
@@ -171,14 +171,15 @@ export const insertInscription = async (req: Request, res: Response) => {
       idEstadoInscripcion,
       idPiloto,
       idTorneo,
-      idCocheInicial,
-      idEquipoInicial,
-      idPilotoIdSim,
+      idCocheInicial: parseFloat(idCocheInicial)?parseFloat(idCocheInicial):null,
+      idEquipoInicial: parseFloat(idEquipoInicial)?parseFloat(idEquipoInicial):null,
+      idPilotoIdSim: parseFloat(idPilotoIdSim),
       noParticipacion,
       observaciones,
-      idRespuesta,
-      respuestaPersonalizada,
+      idRespuesta:idRespuesta?idRespuesta:null,
+      respuestaPersonalizada:respuestaPersonalizada?respuestaPersonalizada:respuestaPersonalizada,
     });
+    console.log(incercion)
     resp.push(incercion);
     if (incercion) {
       const id = incercion.id;
@@ -191,6 +192,7 @@ export const insertInscription = async (req: Request, res: Response) => {
         idEquipoInicialInset = idEquipoPred;
       }
       if (DivisionPredeterminada != null) {
+
         const insertdivicionespilotos =
           await models.tb_divisiones_pilotos.create({
             idInscripcion: id,
@@ -209,7 +211,17 @@ export const insertInscription = async (req: Request, res: Response) => {
           incerciones: resp,
         });
       }else {
-
+        console.log({
+          idInscripcion: id,
+            idNombreDivision: DivisionPredeterminada,
+            idCoche: idCocheInicialInset,
+            idEquipo: idEquipoInicialInset,
+            idCategoriaPiloto: idCategoriaPiloto,
+            idTipoPiloto: idTipoPiloto,
+            idEstado: 1,
+            noCarreraInicial: 1,
+            puntosIniciales: 0,
+        })
         return res.json({
           ok: true,
           incerciones: resp,

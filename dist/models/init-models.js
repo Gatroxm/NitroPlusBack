@@ -21,6 +21,7 @@ var _tb_cod_sim_clasificatorio = require("./tb_cod_sim_clasificatorio");
 var _tb_codificacion_divisiones = require("./tb_codificacion_divisiones");
 var _tb_codificacion_resultados = require("./tb_codificacion_resultados");
 var _tb_comunicados = require("./tb_comunicados");
+var _tb_comunicados_leidos = require("./tb_comunicados_leidos");
 var _tb_conceptos_comisarios = require("./tb_conceptos_comisarios");
 var _tb_contenido_grafico = require("./tb_contenido_grafico");
 var _tb_descargos_involucrados = require("./tb_descargos_involucrados");
@@ -146,6 +147,7 @@ const initModels = (sequelize = connection.default) => {
     var tb_codificacion_divisiones = _tb_codificacion_divisiones(sequelize, sequelize_1.DataTypes);
     var tb_codificacion_resultados = _tb_codificacion_resultados(sequelize, sequelize_1.DataTypes);
     var tb_comunicados = _tb_comunicados(sequelize, sequelize_1.DataTypes);
+    var tb_comunicados_leidos = _tb_comunicados_leidos(sequelize, sequelize_1.DataTypes);
     var tb_conceptos_comisarios = _tb_conceptos_comisarios(sequelize, sequelize_1.DataTypes);
     var tb_contenido_grafico = _tb_contenido_grafico(sequelize, sequelize_1.DataTypes);
     var tb_descargos_involucrados = _tb_descargos_involucrados(sequelize, sequelize_1.DataTypes);
@@ -889,6 +891,7 @@ const initModels = (sequelize = connection.default) => {
         tb_codificacion_divisiones,
         tb_codificacion_resultados,
         tb_comunicados,
+        tb_comunicados_leidos,
         tb_conceptos_comisarios,
         tb_contenido_grafico,
         tb_descargos_involucrados,

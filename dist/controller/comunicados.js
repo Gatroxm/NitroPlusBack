@@ -9,14 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getComunicados = void 0;
+exports.getComunicadosLeidos = exports.PutComunicado = exports.getComunicados = void 0;
 const sequelize_1 = require("sequelize");
 const { sequelize } = require("sequelize");
 const init_models_1 = require("../models/init-models");
 const models = (0, init_models_1.initModels)(sequelize);
 const getComunicados = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const query = `SELECT tb_comunicados.id, tb_comunicados.fecha, tb_comunicados.asunto, tb_comunicados.linkPNG, tb_comunicados.linkPDF, tb_comunicados.textoAdicional, tb_comunicados.fechaVencimiento FROM tb_comunicados INNER JOIN tb_pilotos ON tb_comunicados.idPiloto = tb_pilotos.id WHERE (((tb_comunicados.activo)=1) AND ((tb_pilotos.id)=${id})) UNION SELECT tb_comunicados.id, tb_comunicados.fecha, tb_comunicados.asunto, tb_comunicados.linkPNG, tb_comunicados.linkPDF, tb_comunicados.textoAdicional, tb_comunicados.fechaVencimiento FROM tb_comunicados INNER JOIN tb_pilotos_liga ON tb_comunicados.idLiga = tb_pilotos_liga.idLiga WHERE (((tb_comunicados.activo)=1) AND ((tb_pilotos_liga.idPiloto)=${id}) AND ((tb_pilotos_liga.idEstado)=1)) UNION SELECT tb_comunicados.id, tb_comunicados.fecha, tb_comunicados.asunto, tb_comunicados.linkPNG, tb_comunicados.linkPDF, tb_comunicados.textoAdicional, tb_comunicados.fechaVencimiento FROM (tb_comunicados INNER JOIN tb_sim_plat_codplat ON tb_comunicados.idSimulador = tb_sim_plat_codplat.idSimulador) INNER JOIN tb_pilotos_id_sim ON tb_sim_plat_codplat.id = tb_pilotos_id_sim.idSimCodPlataforma WHERE (((tb_comunicados.activo)=1) AND ((tb_pilotos_id_sim.idPiloto)=${id}) AND ((tb_pilotos_id_sim.idEstado)=1)) UNION SELECT tb_comunicados.id, tb_comunicados.fecha, tb_comunicados.asunto, tb_comunicados.linkPNG, tb_comunicados.linkPDF, tb_comunicados.textoAdicional, tb_comunicados.fechaVencimiento FROM (tb_comunicados INNER JOIN tb_inscripciones ON tb_comunicados.idTorneo = tb_inscripciones.idTorneo) INNER JOIN tb_torneos ON tb_comunicados.idTorneo = tb_torneos.idTorneo WHERE (((tb_comunicados.activo)=1) AND ((tb_inscripciones.idPiloto)=${id}) AND ((tb_torneos.idEstadoTorneo)=1)) UNION  SELECT tb_comunicados.id, tb_comunicados.fecha, tb_comunicados.asunto, tb_comunicados.linkPNG, tb_comunicados.linkPDF, tb_comunicados.textoAdicional, tb_comunicados.fechaVencimiento FROM (tb_comunicados INNER JOIN tb_divisiones_pilotos ON tb_comunicados.idDivision = tb_divisiones_pilotos.idNombreDivision) INNER JOIN tb_inscripciones ON tb_divisiones_pilotos.idInscripcion = tb_inscripciones.id WHERE (((tb_comunicados.activo)=1) AND ((tb_inscripciones.idPiloto)=${id}) AND ((tb_divisiones_pilotos.idEstado)=1)) UNION SELECT tb_comunicados.id, tb_comunicados.fecha, tb_comunicados.asunto, tb_comunicados.linkPNG, tb_comunicados.linkPDF, tb_comunicados.textoAdicional, tb_comunicados.fechaVencimiento FROM tb_comunicados INNER JOIN tb_roles_pilotos ON tb_comunicados.idRol = tb_roles_pilotos.idRol WHERE (((tb_comunicados.activo)=1) AND ((tb_roles_pilotos.idPiloto)=${id}) AND ((tb_roles_pilotos.idEstado)=1)) UNION SELECT tb_comunicados.id, tb_comunicados.fecha, tb_comunicados.asunto, tb_comunicados.linkPNG, tb_comunicados.linkPDF, tb_comunicados.textoAdicional, tb_comunicados.fechaVencimiento FROM tb_comunicados INNER JOIN tb_resultados_clasificatorios ON tb_comunicados.idClasificatorio = tb_resultados_clasificatorios.idClasificatorio WHERE (((tb_comunicados.activo)=1) AND ((tb_resultados_clasificatorios.idPiloto)=${id})) UNION SELECT tb_comunicados.id, tb_comunicados.fecha, tb_comunicados.asunto, tb_comunicados.linkPNG, tb_comunicados.linkPDF, tb_comunicados.textoAdicional, tb_comunicados.fechaVencimiento FROM tb_comunicados INNER JOIN tb_licencias_pilotos ON tb_comunicados.idLicencia = tb_licencias_pilotos.idLicencia WHERE (((tb_comunicados.activo)=1) AND ((tb_licencias_pilotos.idPiloto)=${id})) UNION SELECT tb_comunicados.id, tb_comunicados.fecha, tb_comunicados.asunto, tb_comunicados.linkPNG, tb_comunicados.linkPDF, tb_comunicados.textoAdicional, tb_comunicados.fechaVencimiento FROM tb_comunicados INNER JOIN tb_pilotos ON tb_comunicados.idPais = tb_pilotos.idNacionalidad WHERE (((tb_comunicados.activo)=1) AND ((tb_pilotos.id)=${id})) UNION SELECT tb_comunicados.id, tb_comunicados.fecha, tb_comunicados.asunto, tb_comunicados.linkPNG, tb_comunicados.linkPDF, tb_comunicados.textoAdicional, tb_comunicados.fechaVencimiento FROM tb_comunicados WHERE (((tb_comunicados.activo)=1) AND ((tb_comunicados.idPiloto) Is Null) AND ((tb_comunicados.idLiga) Is Null) AND ((tb_comunicados.idPlataforma) Is Null) AND ((tb_comunicados.idSimulador) Is Null) AND ((tb_comunicados.idTorneo) Is Null) AND ((tb_comunicados.idDivision) Is Null) AND ((tb_comunicados.idCalendario) Is Null) AND ((tb_comunicados.idRol) Is Null) AND ((tb_comunicados.idPais) Is Null) AND ((tb_comunicados.idClasificatorio) Is Null) AND ((tb_comunicados.idLicencia) Is Null)) ORDER BY fecha desc;`;
+    const query = `SELECT DISTINCT c.id, c.fecha, c.asunto, c.linkPNG, c.linkPDF, c.textoAdicional, c.fechaVencimiento, CASE WHEN cl.idComunicado IS NOT NULL THEN 1 ELSE 0 END AS leido FROM tb_comunicados c LEFT JOIN tb_comunicados_leidos cl ON c.id = cl.idComunicado AND cl.idPiloto = ${id} LEFT JOIN tb_pilotos p ON c.idPiloto = p.id AND p.id = ${id} LEFT JOIN tb_pilotos_liga pl ON c.idLiga = pl.idLiga AND pl.idPiloto = ${id} AND pl.idEstado = 1 LEFT JOIN tb_sim_plat_codplat sp ON c.idSimulador = sp.idSimulador LEFT JOIN tb_pilotos_id_sim pis ON sp.id = pis.idSimCodPlataforma AND pis.idPiloto = ${id} AND pis.idEstado = 1 LEFT JOIN tb_inscripciones i ON c.idTorneo = i.idTorneo LEFT JOIN tb_torneos t ON c.idTorneo = t.idTorneo AND t.idEstadoTorneo = 1 LEFT JOIN tb_divisiones_pilotos dp ON c.idDivision = dp.idNombreDivision LEFT JOIN tb_roles_pilotos rp ON c.idRol = rp.idRol AND rp.idPiloto = ${id} AND rp.idEstado = 1 LEFT JOIN tb_resultados_clasificatorios rc ON c.idClasificatorio = rc.idClasificatorio AND rc.idPiloto = ${id} LEFT JOIN tb_licencias_pilotos lp ON c.idLicencia = lp.idLicencia AND lp.idPiloto = ${id} LEFT JOIN tb_pilotos p2 ON c.idPais = p2.id AND p2.id = ${id} WHERE c.activo = 1 AND ( p.id IS NOT NULL OR pl.idLiga IS NOT NULL OR pis.idPiloto IS NOT NULL OR i.idPiloto IS NOT NULL OR dp.idInscripcion IS NOT NULL OR rp.idPiloto IS NOT NULL OR rc.idPiloto IS NOT NULL OR lp.idPiloto IS NOT NULL OR p2.id IS NOT NULL ) ORDER BY c.fecha DESC`;
     try {
         const comunicados = yield models.tb_comunicados.sequelize.query(query, { type: sequelize_1.QueryTypes.SELECT });
         if (comunicados.length > 0) {
@@ -40,4 +40,32 @@ const getComunicados = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.getComunicados = getComunicados;
+const PutComunicado = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { idPiloto, idComunicado } = req.body;
+    const comunicado = yield models.tb_comunicados_leidos.create({ idPiloto, idComunicado });
+    return res.status(200).json({
+        ok: true,
+        comunicado,
+        msg: 'Comunidado Leído'
+    });
+});
+exports.PutComunicado = PutComunicado;
+const getComunicadosLeidos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const query = `SELECT COUNT(*) AS cantidad_no_leidos FROM ( SELECT DISTINCT c.id, c.fecha, c.asunto, c.linkPNG, c.linkPDF, c.textoAdicional, c.fechaVencimiento, CASE WHEN cl.idComunicado IS NOT NULL THEN 1 ELSE 0 END AS leido FROM tb_comunicados c LEFT JOIN tb_comunicados_leidos cl ON c.id = cl.idComunicado AND cl.idPiloto = ${id} LEFT JOIN tb_pilotos p ON c.idPiloto = p.id AND p.id = ${id} LEFT JOIN tb_pilotos_liga pl ON c.idLiga = pl.idLiga AND pl.idPiloto = ${id} AND pl.idEstado = 1 LEFT JOIN tb_sim_plat_codplat sp ON c.idSimulador = sp.idSimulador LEFT JOIN tb_pilotos_id_sim pis ON sp.id = pis.idSimCodPlataforma AND pis.idPiloto = ${id} AND pis.idEstado = 1 LEFT JOIN tb_inscripciones i ON c.idTorneo = i.idTorneo LEFT JOIN tb_torneos t ON c.idTorneo = t.idTorneo AND t.idEstadoTorneo = 1 LEFT JOIN tb_divisiones_pilotos dp ON c.idDivision = dp.idNombreDivision LEFT JOIN tb_roles_pilotos rp ON c.idRol = rp.idRol AND rp.idPiloto = ${id} AND rp.idEstado = 1 LEFT JOIN tb_resultados_clasificatorios rc ON c.idClasificatorio = rc.idClasificatorio AND rc.idPiloto = ${id} LEFT JOIN tb_licencias_pilotos lp ON c.idLicencia = lp.idLicencia AND lp.idPiloto = ${id} LEFT JOIN tb_pilotos p2 ON c.idPais = p2.id AND p2.id = ${id} WHERE c.activo = 1 AND ( p.id IS NOT NULL OR pl.idLiga IS NOT NULL OR pis.idPiloto IS NOT NULL OR i.idPiloto IS NOT NULL OR dp.idInscripcion IS NOT NULL OR rp.idPiloto IS NOT NULL OR rc.idPiloto IS NOT NULL OR lp.idPiloto IS NOT NULL OR p2.id IS NOT NULL ) ) t WHERE t.leido = 0;`;
+    const comunicados = yield models.tb_comunicados_leidos.sequelize.query(query, { type: sequelize_1.QueryTypes.SELECT });
+    if (comunicados.length > 0) {
+        return res.status(200).json({
+            ok: true,
+            comunicados: comunicados[0].cantidad_no_leidos,
+        });
+    }
+    else {
+        return res.status(200).json({
+            ok: false,
+            msg: 'No hay comunicados nuevos'
+        });
+    }
+});
+exports.getComunicadosLeidos = getComunicadosLeidos;
 //# sourceMappingURL=comunicados.js.map
