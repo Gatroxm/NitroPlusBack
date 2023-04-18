@@ -3,6 +3,7 @@ import { DataTypes } from "sequelize";
 const connection = require("../db/connection");
 var _tb_reglas_torneos = require("./tb_reglas_torneos");
 var _tb_analisis_stint = require("./tb_analisis_stint");
+var _tb_apoyo = require("./tb_apoyo");
 var _tb_asignacion_comisario = require("./tb_asignacion_comisario");
 var _tb_asignacion_tipo_tickets = require("./tb_asignacion_tipo_tickets");
 var _tb_banner_patrocinadores = require("./tb_banner_patrocinadores");
@@ -131,6 +132,7 @@ var _tb_webhooks_discord = require("./tb_webhooks_discord");
 export const  initModels = (sequelize:any = connection.default) => {
   var tb_reglas_torneos = _tb_reglas_torneos(sequelize, DataTypes);
   var tb_analisis_stint = _tb_analisis_stint(sequelize, DataTypes);
+  var tb_apoyo = _tb_apoyo(sequelize, DataTypes);
   var tb_asignacion_comisario = _tb_asignacion_comisario(sequelize, DataTypes);
   var tb_asignacion_tipo_tickets = _tb_asignacion_tipo_tickets(sequelize, DataTypes);
   var tb_banner_patrocinadores = _tb_banner_patrocinadores(sequelize, DataTypes);
@@ -876,6 +878,7 @@ export const  initModels = (sequelize:any = connection.default) => {
 
   return {
     tb_reglas_torneos,
+    tb_apoyo,
     tb_analisis_stint,
     tb_asignacion_comisario,
     tb_asignacion_tipo_tickets,

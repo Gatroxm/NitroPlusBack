@@ -15,6 +15,8 @@ import routerCards from "../routes/cards";
 import routerLicencias from "../routes/licencias";
 import routerTorneos from "../routes/torneo";
 import routerRoles from "../routes/roles";
+import routerApoyo from "../routes/apoyanos";
+import routerReportesComisarios from "../routes/reportesComisarios";
 
 class Server {
 
@@ -34,6 +36,8 @@ class Server {
         licencias: '/api/licencias',
         torneo: '/api/torneo',
         rol: '/api/rol',
+        apoyo: '/api/apoyo',
+        reportesComisarios: '/api/reportes-comisaros',
     }
 
     constructor(){
@@ -80,6 +84,8 @@ class Server {
         this.app.use(this.apiPaths.licencias, routerLicencias );
         this.app.use(this.apiPaths.torneo, routerTorneos );
         this.app.use(this.apiPaths.rol, routerRoles );
+        this.app.use(this.apiPaths.apoyo, routerApoyo );
+        this.app.use(this.apiPaths.reportesComisarios, routerReportesComisarios );
     }
 
     lisent() {
