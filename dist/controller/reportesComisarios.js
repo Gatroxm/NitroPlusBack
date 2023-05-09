@@ -9,14 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateConceptos = exports.getGravedad = exports.getSancionPropuesta = exports.getReportesPendientes = void 0;
+exports.callAplicarSancion = exports.pestannaConceptosReportesPendientesLideres = exports.pestannaSancionados = exports.pestannaConceptos = exports.getHistorialDeReportes = exports.updateConceptos = exports.getGravedad = exports.getSancionPropuesta = exports.getReportesPendientes = void 0;
 const sequelize_1 = require("sequelize");
 const { sequelize } = require("sequelize");
 const init_models_1 = require("../models/init-models");
 const models = (0, init_models_1.initModels)(sequelize);
 const getReportesPendientes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const query = `SELECT tb_conceptos_comisarios.idReporte, tb_torneos.nombre AS Torneo, tb_divisiones.nombre AS Division, tb_calendario.nombreEvento AS Evento, tb_roles_pilotos.idPiloto, tb_conceptos_comisarios.idSancion, tb_conceptos_comisarios.idGravedad, tb_reportes_comisarios.idEstadoReporte, tb_divisiones.horasFinReportes, tb_divisiones.horasFinApelaciones, tb_divisiones.horasFinConceptosComisarios, tb_conceptos_comisarios.id AS idConcepto, tb_conceptos_comisarios.concepto, tb_calendario.fechaHoraCarrera, DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinApelaciones HOUR) AS FinApelaciones, DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinConceptosComisarios HOUR) AS CierreConceptos FROM tb_divisiones INNER JOIN tb_calendario ON tb_divisiones.id = tb_calendario.idDivision INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo INNER JOIN tb_reportes_comisarios ON tb_calendario.id = tb_reportes_comisarios.idCalendario INNER JOIN tb_conceptos_comisarios ON tb_reportes_comisarios.id = tb_conceptos_comisarios.idReporte INNER JOIN tb_asignacion_comisario ON tb_conceptos_comisarios.idAsignacionComisario = tb_asignacion_comisario.id INNER JOIN tb_roles_pilotos ON tb_asignacion_comisario.idRolPilotoComisario = tb_roles_pilotos.id WHERE tb_roles_pilotos.idPiloto = ${id} AND tb_reportes_comisarios.idEstadoReporte = 1 AND tb_conceptos_comisarios.concepto IS NULL AND NOW() BETWEEN DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinApelaciones HOUR) AND DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinConceptosComisarios HOUR);`;
+    const query = `SELECT tb_conceptos_comisarios.idReporte, tb_torneos.nombre AS Torneo, tb_divisiones.nombre AS Division, tb_calendario.nombreEvento AS Evento, tb_roles_pilotos.idPiloto, tb_conceptos_comisarios.idSancion, tb_conceptos_comisarios.idGravedad, tb_reportes_comisarios.idEstadoReporte, tb_divisiones.horasFinReportes, tb_divisiones.horasFinApelaciones, tb_divisiones.horasFinConceptosComisarios, tb_conceptos_comisarios.id AS idConcepto, tb_conceptos_comisarios.concepto, tb_calendario.fechaHoraCarrera, DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinApelaciones HOUR) AS FinApelaciones, DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinConceptosComisarios HOUR) AS CierreConceptos FROM tb_divisiones INNER JOIN tb_calendario ON tb_divisiones.id = tb_calendario.idDivision INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo INNER JOIN tb_reportes_comisarios ON tb_calendario.id = tb_reportes_comisarios.idCalendario INNER JOIN tb_conceptos_comisarios ON tb_reportes_comisarios.id = tb_conceptos_comisarios.idReporte INNER JOIN tb_asignacion_comisario ON tb_conceptos_comisarios.idAsignacionComisario = tb_asignacion_comisario.id INNER JOIN tb_roles_pilotos ON tb_asignacion_comisario.idRolPilotoComisario = tb_roles_pilotos.id WHERE tb_roles_pilotos.idPiloto =${id} AND tb_reportes_comisarios.idEstadoReporte = 1 AND tb_conceptos_comisarios.concepto IS NULL AND NOW() BETWEEN DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones. horasFinConceptosComisarios HOUR) AND DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinConceptosFinales HOUR)  order by tb_conceptos_comisarios.idReporte DESC;`;
     try {
         const resultados = yield models.tb_divisiones.sequelize.query(query, {
             type: sequelize_1.QueryTypes.SELECT,
@@ -44,7 +44,7 @@ const getReportesPendientes = (req, res) => __awaiter(void 0, void 0, void 0, fu
 exports.getReportesPendientes = getReportesPendientes;
 const getSancionPropuesta = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const query = `SELECT tb_tabla_sanciones.titulo, tb_tabla_sanciones.id FROM tb_tabla_sanciones ORDER BY tb_tabla_sanciones.titulo;`;
+    const query = `SELECT tb_tabla_sanciones.titulo, tb_tabla_sanciones.id FROM tb_tabla_sanciones WHERE tb_tabla_sanciones.idEstado = 1 ORDER BY tb_tabla_sanciones.titulo ;`;
     try {
         const resultados = yield models.tb_divisiones.sequelize.query(query, {
             type: sequelize_1.QueryTypes.SELECT,
@@ -72,7 +72,7 @@ const getSancionPropuesta = (req, res) => __awaiter(void 0, void 0, void 0, func
 exports.getSancionPropuesta = getSancionPropuesta;
 const getGravedad = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const query = `SELECT tb_gravedad_sancion.nombre, tb_gravedad_sancion.id FROM tb_gravedad_sancion ORDER BY tb_gravedad_sancion.id;`;
+    const query = `SELECT tb_gravedad_sancion.nombre, tb_gravedad_sancion.id FROM tb_penalizacion_sanciones INNER JOIN tb_gravedad_sancion ON tb_penalizacion_sanciones.idGravedad = tb_gravedad_sancion.id GROUP BY tb_gravedad_sancion.nombre, tb_gravedad_sancion.id, tb_penalizacion_sanciones.idEstado, tb_penalizacion_sanciones.idSancion HAVING (((tb_penalizacion_sanciones.idEstado)=1) AND  ((tb_penalizacion_sanciones.idSancion)=${id})) ORDER BY tb_gravedad_sancion.id;`;
     try {
         const resultados = yield models.tb_divisiones.sequelize.query(query, {
             type: sequelize_1.QueryTypes.SELECT,
@@ -131,4 +131,144 @@ const updateConceptos = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.updateConceptos = updateConceptos;
+const getHistorialDeReportes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const query = `SELECT tb_conceptos_comisarios.idReporte, tb_torneos.nombre AS Torneo, tb_divisiones.nombre AS Division, tb_calendario.nombreEvento AS Evento, tb_roles_pilotos.idPiloto, tb_conceptos_comisarios.idSancion, tb_conceptos_comisarios.idGravedad, tb_reportes_comisarios.idEstadoReporte, tb_conceptos_comisarios.id AS idConcepto, tb_conceptos_comisarios.concepto, tb_calendario.fechaHoraCarrera, tb_estado_reportes.nombre AS EstadoReporte, tb_conceptos_comisarios.fechaCreacion, tb_conceptos_comisarios.fechaActualizacion, DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinApelaciones HOUR) as FechaInicio, CASE WHEN tb_conceptos_comisarios.concepto IS NULL THEN "Sin Concepto" ELSE "Completado" END AS 'Estado Concepto', CASE WHEN tb_conceptos_comisarios.fechaActualizacion IS NULL THEN "-" ELSE TIMESTAMPDIFF(HOUR, DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinApelaciones HOUR), tb_conceptos_comisarios.fechaActualizacion) END AS 'Horas Res' FROM tb_divisiones INNER JOIN tb_calendario ON tb_divisiones.id = tb_calendario.idDivision INNER JOIN tb_reportes_comisarios ON tb_calendario.id = tb_reportes_comisarios.idCalendario INNER JOIN tb_conceptos_comisarios ON tb_reportes_comisarios.id = tb_conceptos_comisarios.idReporte INNER JOIN tb_asignacion_comisario ON tb_conceptos_comisarios.idAsignacionComisario = tb_asignacion_comisario.id INNER JOIN tb_roles_pilotos ON tb_asignacion_comisario.idRolPilotoComisario = tb_roles_pilotos.id INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo INNER JOIN tb_estado_reportes ON tb_reportes_comisarios.idEstadoReporte = tb_estado_reportes.id WHERE tb_roles_pilotos.idPiloto = ${id} ORDER BY tb_conceptos_comisarios.idReporte DESC;;`;
+    try {
+        const resultados = yield models.tb_divisiones.sequelize.query(query, {
+            type: sequelize_1.QueryTypes.SELECT,
+        });
+        if (resultados.length > 0) {
+            return res.status(200).json({
+                ok: true,
+                resultados,
+            });
+        }
+        else {
+            return res.status(404).json({
+                ok: false,
+                msg: "No cuentas con resultados",
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.getHistorialDeReportes = getHistorialDeReportes;
+const pestannaConceptos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const query = `SELECT tb_pilotos.nombreCorto AS Comisario, tb_conceptos_comisarios.concepto, tb_tabla_sanciones.seccion AS SancionPropuesta, tb_gravedad_sancion.nombre AS GravedadPropuesta, tb_conceptos_comisarios.fechaActualizacion AS FechaEmision, tb_roles.nombre AS Rol FROM (((((tb_conceptos_comisarios INNER JOIN tb_asignacion_comisario ON tb_conceptos_comisarios.idAsignacionComisario = tb_asignacion_comisario.id) INNER JOIN tb_roles_pilotos ON tb_asignacion_comisario.idRolPilotoComisario = tb_roles_pilotos.id) INNER JOIN tb_pilotos ON tb_roles_pilotos.idPiloto = tb_pilotos.id) LEFT JOIN tb_tabla_sanciones ON tb_conceptos_comisarios.idSancion = tb_tabla_sanciones.id) LEFT JOIN tb_gravedad_sancion ON tb_conceptos_comisarios.idGravedad = tb_gravedad_sancion.id) INNER JOIN tb_roles ON tb_roles_pilotos.idRol = tb_roles.id WHERE (((tb_conceptos_comisarios.idReporte)=${id})) ORDER BY tb_conceptos_comisarios.fechaActualizacion DESC;`;
+    try {
+        const resultados = yield models.tb_conceptos_comisarios.sequelize.query(query, {
+            type: sequelize_1.QueryTypes.SELECT,
+        });
+        if (resultados.length > 0) {
+            return res.status(200).json({
+                ok: true,
+                resultados,
+            });
+        }
+        else {
+            return res.status(404).json({
+                ok: false,
+                msg: "No cuentas con resultados",
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.pestannaConceptos = pestannaConceptos;
+const pestannaSancionados = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const query = `SELECT tb_reportes_comisarios.id, tb_pilotos.nombreCorto AS Piloto, tb_rol_involucrados.nombre AS Rol, tb_tabla_sanciones.seccion, tb_tipo_penalizacion.nombre AS Penalizacion, tb_penalizacion_sanciones.valor, tb_tipo_penalizacion.unidadDeMedida, tb_pilotos_1.nombreCorto AS Comisario FROM (tb_asignacion_comisario RIGHT JOIN (((((((tb_reportes_comisarios INNER JOIN tb_involucrados_sanciones ON tb_reportes_comisarios.id = tb_involucrados_sanciones.idReporte) LEFT JOIN tb_pilotos_penalizados ON tb_involucrados_sanciones.id = tb_pilotos_penalizados.idInvolucradoSancion) LEFT JOIN tb_penalizacion_sanciones ON tb_pilotos_penalizados.idPenalizacion = tb_penalizacion_sanciones.id) INNER JOIN tb_pilotos ON tb_involucrados_sanciones.idPiloto = tb_pilotos.id) INNER JOIN tb_rol_involucrados ON tb_involucrados_sanciones.idRolInvolucrado = tb_rol_involucrados.id) LEFT JOIN tb_tabla_sanciones ON tb_penalizacion_sanciones.idSancion = tb_tabla_sanciones.id) LEFT JOIN tb_tipo_penalizacion ON tb_penalizacion_sanciones.idTipoPenalizacion = tb_tipo_penalizacion.id) ON tb_asignacion_comisario.id = tb_pilotos_penalizados.idRolComisarioSancion) LEFT JOIN (tb_roles_pilotos LEFT JOIN tb_pilotos AS tb_pilotos_1 ON tb_roles_pilotos.idPiloto = tb_pilotos_1.id) ON tb_asignacion_comisario.idRolPilotoComisario = tb_roles_pilotos.id WHERE (((tb_reportes_comisarios.id)=${id}));`;
+    try {
+        const resultados = yield models.tb_conceptos_comisarios.sequelize.query(query, {
+            type: sequelize_1.QueryTypes.SELECT,
+        });
+        if (resultados.length > 0) {
+            return res.status(200).json({
+                ok: true,
+                resultados,
+            });
+        }
+        else {
+            return res.status(404).json({
+                ok: false,
+                msg: "No cuentas con resultados",
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.pestannaSancionados = pestannaSancionados;
+const pestannaConceptosReportesPendientesLideres = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const query = `SELECT tb_conceptos_comisarios.idReporte, tb_torneos.nombre AS Torneo, tb_divisiones.nombre AS Division, tb_calendario.nombreEvento AS Evento, tb_roles_pilotos.idPiloto, tb_conceptos_comisarios.idSancion, tb_conceptos_comisarios.idGravedad, tb_reportes_comisarios.idEstadoReporte, tb_divisiones.horasFinReportes, tb_divisiones.horasFinApelaciones, tb_divisiones.horasFinConceptosComisarios, tb_conceptos_comisarios.id AS idConcepto, tb_conceptos_comisarios.concepto, tb_calendario.fechaHoraCarrera, DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinApelaciones HOUR) AS FinApelaciones, DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinConceptosComisarios HOUR) AS CierreConceptos FROM tb_divisiones INNER JOIN tb_calendario ON tb_divisiones.id = tb_calendario.idDivision INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo INNER JOIN tb_reportes_comisarios ON tb_calendario.id = tb_reportes_comisarios.idCalendario INNER JOIN tb_conceptos_comisarios ON tb_reportes_comisarios.id = tb_conceptos_comisarios.idReporte INNER JOIN tb_asignacion_comisario ON tb_conceptos_comisarios.idAsignacionComisario = tb_asignacion_comisario.id INNER JOIN tb_roles_pilotos ON tb_asignacion_comisario.idRolPilotoComisario = tb_roles_pilotos.id WHERE tb_roles_pilotos.idPiloto = ${id} AND tb_reportes_comisarios.idEstadoReporte = 1 AND tb_conceptos_comisarios.concepto IS NULL AND NOW() BETWEEN DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones. horasFinConceptosComisarios HOUR) AND DATE_ADD(convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinConceptosFinales HOUR) ORDER BY Tb_conceptos_comisarios.idReporte DESC;`;
+    try {
+        const resultados = yield models.tb_conceptos_comisarios.sequelize.query(query, {
+            type: sequelize_1.QueryTypes.SELECT,
+        });
+        if (resultados.length > 0) {
+            return res.status(200).json({
+                ok: true,
+                resultados,
+            });
+        }
+        else {
+            return res.status(404).json({
+                ok: false,
+                msg: "No cuentas con resultados",
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.pestannaConceptosReportesPendientesLideres = pestannaConceptosReportesPendientesLideres;
+const callAplicarSancion = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { idReporte, idInvolucrado, idSancion, idGravedad, idPiloto } = req.body;
+    const query = `CALL aplicar_sancion(${idReporte},${idInvolucrado},${idSancion},${idGravedad},${idPiloto})`;
+    try {
+        const resultados = yield models.tb_conceptos_comisarios.sequelize.query(query, {
+            type: sequelize_1.QueryTypes.SELECT,
+        });
+        if (resultados.length > 0) {
+            return res.status(200).json({
+                ok: true,
+                resultados,
+            });
+        }
+        else {
+            return res.status(404).json({
+                ok: false,
+                msg: "No cuentas con resultados",
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.callAplicarSancion = callAplicarSancion;
 //# sourceMappingURL=reportesComisarios.js.map
