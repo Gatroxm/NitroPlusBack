@@ -300,35 +300,38 @@ export const confirmacion = async (req: Request, res: Response) => {
 
   try {
     const buscaPiloto = await models.tb_parrilla_calendario.findOne({
-      where:{
-        idCalendario:idCalendario,
-        idPiloto:idPiloto,
-      }
-  })
-    
-    if( buscaPiloto ){
-      const confirmacion = await models.tb_parrilla_calendario.update({
-        estaConfirmado:estaConfirmado
-      }, {
-        where: {
-          id: buscaPiloto.id,
+      where: {
+        idCalendario: idCalendario,
+        idPiloto: idPiloto,
+      },
+    });
+
+    if (buscaPiloto) {
+      const confirmacion = await models.tb_parrilla_calendario.update(
+        {
+          estaConfirmado: estaConfirmado,
         },
-      })
+        {
+          where: {
+            id: buscaPiloto.id,
+          },
+        }
+      );
       return res.json({
         ok: true,
         confirmacion,
-        buscaPiloto
+        buscaPiloto,
       });
     } else {
       const confirmacion = await models.tb_parrilla_calendario.create({
-        idDivision:idDivision,
-        idCalendario:idCalendario,
-        idCategoriaPiloto:idCategoriaPiloto,
-        idTipoPiloto:idTipoPiloto,
-        idPiloto:idPiloto,
-        idCoche:idCoche,
-        idEquipo:idEquipo,
-        estaConfirmado:estaConfirmado,
+        idDivision: idDivision,
+        idCalendario: idCalendario,
+        idCategoriaPiloto: idCategoriaPiloto,
+        idTipoPiloto: idTipoPiloto,
+        idPiloto: idPiloto,
+        idCoche: idCoche,
+        idEquipo: idEquipo,
+        estaConfirmado: estaConfirmado,
       });
       return res.json({
         ok: true,
@@ -344,7 +347,6 @@ export const confirmacion = async (req: Request, res: Response) => {
   }
 };
 export const tablaConfirmados = async (req: Request, res: Response) => {
-  
   const { id } = req.params;
   const query = `SELECT tb_pilotos.nombreCorto, tb_coches.nombre AS Coche, tb_cat_piloto.nombre AS Categoria, tb_tipo_piloto.nombre AS Tipo, COALESCE( CASE WHEN tb_parrilla_calendario.estaConfirmado IS NULL THEN "Sin Confirmar" WHEN tb_parrilla_calendario.estaConfirmado = 1 THEN "Confirmado" WHEN tb_parrilla_calendario.estaConfirmado = 0 THEN "No asistirá" END, "Sin Confirmar" ) AS Estado, convertir_a_utc(tb_parrilla_calendario.fechaCreacion) AS FechaCreacion, convertir_a_utc(tb_parrilla_calendario.fechaActualizacion) AS fechaActualizacion, IF(tb_sim_plat_codplat.isVisible = 1, tb_pilotos_id_sim.idSimPiloto, '') AS IDSim, RutaImagenCompleta(tb_marcas_coches.imgLogo) AS logoCoche, RutaImagenCompleta(tb_fotos_pilotos.rutaImagen) AS imgPiloto FROM tb_divisiones_pilotos INNER JOIN tb_inscripciones ON tb_divisiones_pilotos.idInscripcion = tb_inscripciones.id INNER JOIN tb_pilotos ON tb_inscripciones.idPiloto = tb_pilotos.id INNER JOIN tb_coches_sim ON tb_divisiones_pilotos.idCoche = tb_coches_sim.id INNER JOIN tb_coches ON tb_coches_sim.idCoche = tb_coches.id INNER JOIN tb_cat_piloto ON tb_divisiones_pilotos.idCategoriaPiloto = tb_cat_piloto.id INNER JOIN tb_tipo_piloto ON tb_divisiones_pilotos.idTipoPiloto = tb_tipo_piloto.id INNER JOIN tb_calendario ON tb_calendario.idDivision = tb_divisiones_pilotos.idNombreDivision LEFT JOIN tb_parrilla_calendario ON tb_inscripciones.idPiloto = tb_parrilla_calendario.idPiloto AND tb_parrilla_calendario.idCalendario = tb_calendario.id INNER JOIN tb_pilotos_id_sim ON tb_inscripciones.idPilotoIdSim = tb_pilotos_id_sim.id INNER JOIN tb_sim_plat_codplat ON tb_pilotos_id_sim.idSimCodPlataforma = tb_sim_plat_codplat.id INNER JOIN tb_marcas_coches ON tb_coches.idMarca = tb_marcas_coches.id LEFT JOIN tb_fotos_pilotos ON tb_inscripciones.idPiloto =   tb_fotos_pilotos.idPiloto WHERE tb_calendario.id = ${id} AND tb_divisiones_pilotos.idEstado = 1 AND (tb_fotos_pilotos.idTipo = 1 OR tb_fotos_pilotos.idTipo IS NULL) ORDER BY tb_parrilla_calendario.estaConfirmado DESC;`;
   try {
@@ -368,24 +370,137 @@ export const tablaConfirmados = async (req: Request, res: Response) => {
       error: error,
     });
   }
-
-}
+};
 
 export const InfoTorneo = async (req: Request, res: Response) => {
-  const response = []
-  const {id} = req.params
+  const response = [];
+  const { id } = req.params;
   const query1 = `SELECT tb_calendario.id, tb_torneos.nombre, tb_torneos.descripcion, tb_torneos.requisitosTxt, tb_torneos.formatoTxt, convertir_a_utc(tb_torneos.fechaInicio) AS fechaInicio, convertir_a_utc(tb_torneos.fechaFin) AS fechaFin, convertir_a_utc( tb_torneos.fechaLimiteInscripcion ) AS fechaLimiteInscripcion, tb_torneos.urlInscripcionAdicional, tb_torneos.instruccionesAdicionales, tb_divisiones.requiereConfirmacion, DATE_SUB( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasAntesConfirmacionApertura HOUR ) AS horasAntesConfirmacionApertura, DATE_SUB( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasAntesConfirmacionCierre HOUR ) AS horasAntesConfirmacionCierre, tb_divisiones.permiteReservas, tb_divisiones.permiteReportes, tb_divisiones.requiereRepeticion, DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasInicioReportes HOUR ) AS horasInicioReportes, DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinReportes HOUR ) AS horasFinReportes, DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinApelaciones HOUR ) AS horasFinApelaciones, DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.plazoEnvioRepeticion HOUR ) AS plazoEnvioRepeticion, tb_divisiones.afectaIndiceParticipacion, tb_divisiones.nombre AS NombreDivision, tb_formato_carrera.nombre AS Formato, tb_calendario.horaVirtual, tb_calendario.tempAire, tb_calendario.tempPista, tb_calendario.nubosidad, tb_calendario.requisitoBoxes, tb_calendario.lluvia, tb_calendario.observaciones, tb_calendario.urlTransmision, tb_calendario.esPorEtapas, tb_calendario.noVueltasRequeridas, tb_calendario.elo_multiplicador, if(tb_calendario.mostrarPracticas=0,NULL,CONCAT('https://nitrosimracing.com.co/practicas-calendario?var1=',tb_calendario.id)) AS link_practicas FROM ( ( tb_torneos INNER JOIN tb_divisiones ON tb_torneos.idTorneo = tb_divisiones.idTorneo ) INNER JOIN tb_calendario ON tb_divisiones.id = tb_calendario.idDivision ) INNER JOIN tb_formato_carrera ON tb_calendario.idFormatoCarrera = tb_formato_carrera.id WHERE (((tb_calendario.id) = ${id}));`;
-  const query2 =`SELECT tb_reglas_torneos.reglastxt FROM tb_calendario INNER JOIN (tb_reglas_torneos INNER JOIN tb_divisiones ON tb_reglas_torneos.idTorneo = tb_divisiones.idTorneo) ON tb_calendario.idDivision = tb_divisiones.id WHERE (((tb_calendario.id)=${id}));`;
+  const query2 = `SELECT tb_reglas_torneos.reglastxt FROM tb_calendario INNER JOIN (tb_reglas_torneos INNER JOIN tb_divisiones ON tb_reglas_torneos.idTorneo = tb_divisiones.idTorneo) ON tb_calendario.idDivision = tb_divisiones.id WHERE (((tb_calendario.id)=${id}));`;
   const infoTorneoDivision = await models.tb_torneos.sequelize.query(query1, {
     type: QueryTypes.SELECT,
   });
-  response.push({info: infoTorneoDivision});
+  response.push({ info: infoTorneoDivision });
   const infoReglas = await models.tb_reglas_torneos.sequelize.query(query2, {
     type: QueryTypes.SELECT,
   });
-  response.push({reglas: infoReglas});
+  response.push({ reglas: infoReglas });
+  return res.status(200).json({
+    ok: true,
+    response,
+  });
+};
+
+export const ModaltablaReportesDeLaFecha = async (
+  req: Request,
+  res: Response
+) => {
+  const { id } = req.params;
+  const query = `SELECT tb_reportes_comisarios.id AS ReporteNo, tb_estado_reportes.nombre AS Estado, tb_reportes_comisarios.noVuelta, GROUP_CONCAT(CONCAT(tb_rol_involucrados.nombre, ' - ', tb_pilotos.nombreCorto) ORDER BY tb_rol_involucrados.id SEPARATOR ' // ' ) AS Roles, CONCAT('https://multimedia.nitrosimracing.com.co/plantillasphp/resolucion.php?&id_reporte=',tb_reportes_comisarios.id) AS Ver FROM (((tb_reportes_comisarios INNER JOIN tb_estado_reportes ON tb_reportes_comisarios.idEstadoReporte = tb_estado_reportes.id) INNER JOIN tb_involucrados_sanciones ON tb_reportes_comisarios.id = tb_involucrados_sanciones.idReporte) INNER JOIN tb_rol_involucrados ON tb_involucrados_sanciones.idRolInvolucrado = tb_rol_involucrados.id) INNER JOIN tb_pilotos ON tb_involucrados_sanciones.idPiloto = tb_pilotos.id WHERE tb_reportes_comisarios.idCalendario = ${id} GROUP BY tb_reportes_comisarios.idCalendario, tb_reportes_comisarios.id, tb_estado_reportes.nombre, tb_reportes_comisarios.noVuelta ORDER BY tb_reportes_comisarios.id;`;
+  try {
+    const resultados = await models.tb_calendario.sequelize.query(query, {
+      type: QueryTypes.SELECT,
+    });
+    if (resultados.length > 0) {
+      return res.status(200).json({
+        ok: true,
+        resultados,
+      });
+    } else {
+      return res.status(404).json({
+        ok: false,
+        msg: "No cuentas con resultados",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+};
+
+export const insetb_camaras_transmisiones = async (
+  req: Request,
+  res: Response
+) => {
+  const { idPerfil, idPiloto, idCalendario, linkCamara } = req.body;
+  try {
+    const resultados = await models.tb_camaras_transmisiones.findOne({
+      where: {
+        idCalendario: idCalendario,
+        idPiloto: idPiloto,
+      },
+    });
+    if (!resultados) {
+      const respuesta = await models.tb_camaras_transmisiones.create({ idPerfil, idPiloto, idCalendario, linkCamara });
+      return res.status(200).json({
+        ok: true,
+        respuesta,
+      });
+    } else {
+      const respuesta = await models.tb_camaras_transmisiones.update({ idPerfil, idPiloto, idCalendario, linkCamara },{
+        where: {
+          idCalendario: idCalendario,
+          idPiloto: idPiloto,
+        },
+      } );
+      return res.status(200).json({
+        ok: true,
+        respuesta,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+};
+
+export const getSancionadosMasInfo = async (
+  req: Request,
+  res: Response
+) => {
+  const { id } = req.params;
+  const query = `SELECT tb_reportes_comisarios.id AS ReporteNo, tb_estado_reportes.nombre AS Estado, tb_pilotos.nombreCorto, GROUP_CONCAT( CONCAT( tb_penalizacion_sanciones.valor, ' ', tb_tipo_penalizacion.unidadDeMedida ) SEPARATOR ' - ' ) AS Sancion, CONCAT( 'https://multimedia.nitrosimracing.com.co/plantillasphp/resolucion.php?&id_reporte=', tb_reportes_comisarios.id ) AS Ver FROM ( ( ( tb_pilotos_penalizados INNER JOIN tb_penalizacion_sanciones ON tb_pilotos_penalizados.idPenalizacion = tb_penalizacion_sanciones.id ) INNER JOIN tb_tipo_penalizacion ON tb_penalizacion_sanciones.idTipoPenalizacion = tb_tipo_penalizacion.id ) INNER JOIN( ( tb_calendario AS tb_calendario_1 INNER JOIN( ( ( tb_reportes_comisarios INNER JOIN tb_calendario ON tb_reportes_comisarios.idCalendario = tb_calendario.id ) INNER JOIN tb_involucrados_sanciones ON tb_reportes_comisarios.id = tb_involucrados_sanciones.idReporte ) INNER JOIN tb_estado_reportes ON tb_reportes_comisarios.idEstadoReporte = tb_estado_reportes.id ) ON tb_calendario_1.idDivision = tb_calendario.idDivision ) INNER JOIN tb_pilotos ON tb_involucrados_sanciones.idPiloto = tb_pilotos.id ) ON tb_pilotos_penalizados.idInvolucradoSancion = tb_involucrados_sanciones.id ) WHERE (((tb_calendario_1.id)=${id}) AND ((tb_penalizacion_sanciones.valor)>0)) OR (((tb_calendario_1.id)=${id}) AND ((tb_penalizacion_sanciones.idTipoPenalizacion)=5 Or (tb_penalizacion_sanciones.idTipoPenalizacion)=6 Or (tb_penalizacion_sanciones.idTipoPenalizacion)=7 Or (tb_penalizacion_sanciones.idTipoPenalizacion)=8)) GROUP BY tb_pilotos.nombreCorto;`
+
+  const resultados = await models.tb_pilotos_penalizados.sequelize.query(query, {
+    type: QueryTypes.SELECT,
+  });
+  if (resultados.length > 0) {
     return res.status(200).json({
       ok: true,
-      response,
+      resultados,
     });
+  } else {
+    return res.status(404).json({
+      ok: false,
+      msg: "No cuentas con resultados",
+    });
+  }
+}
+
+export const getCalendarioDelTornaoMasInfo = async (
+  req: Request,
+  res: Response
+) => {
+  const { id } = req.params;
+  const query = `SELECT tb_torneos.nombre AS Torneo, tb_divisiones.nombre AS Division, tb_calendario.nombreEvento AS Evento, tb_calendario.fechaHoraCarrera AS Fecha_Hora, tb_estado_carrera.nombre AS Estado FROM (tb_calendario AS tb_calendario_1 INNER JOIN ((tb_calendario INNER JOIN tb_divisiones ON tb_calendario.idDivision = tb_divisiones.id) INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo) ON tb_calendario_1.idDivision = tb_calendario.idDivision) INNER JOIN tb_estado_carrera ON tb_calendario.idEstadoCarrera = tb_estado_carrera.id WHERE (((tb_calendario_1.id)=${id}) AND ((tb_torneos.idEstadoTorneo)=1) AND ((tb_divisiones.idEstado)=1)) ORDER BY tb_calendario.fechaHoraCarrera;`
+
+  const resultados = await models.tb_calendario.sequelize.query(query, {
+    type: QueryTypes.SELECT,
+  });
+  if (resultados.length > 0) {
+    return res.status(200).json({
+      ok: true,
+      resultados,
+    });
+  } else {
+    return res.status(404).json({
+      ok: false,
+      msg: "No cuentas con resultados",
+    });
+  }
 }

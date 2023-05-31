@@ -11,6 +11,10 @@ import {
     confirmacion,
     tablaConfirmados,
     InfoTorneo,
+    ModaltablaReportesDeLaFecha,
+    insetb_camaras_transmisiones,
+    getSancionadosMasInfo,
+    getCalendarioDelTornaoMasInfo,
  } from "../controller/cards";
 
 const routerCards = Router();
@@ -26,5 +30,9 @@ routerCards.get('/modal-informacion-generla/:id', modalInformacionGeneral);
 routerCards.post('/apelaciones', InsertApelacionAclaracion);
 routerCards.post('/confirmacion', confirmacion); 
 routerCards.get('/infoTorneo/:id', InfoTorneo); 
+routerCards.get('/modal-reportes-dela-fecha/:id', ModaltablaReportesDeLaFecha); 
+routerCards.get('/getSancionadosMasInfo/:id', getSancionadosMasInfo); 
+routerCards.get('/getCalendarioDelTornaoMasInfo/:id', getCalendarioDelTornaoMasInfo); 
+routerCards.post('/insetb_camaras_transmisiones', insetb_camaras_transmisiones); 
 
 export default routerCards;

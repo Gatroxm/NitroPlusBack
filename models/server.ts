@@ -17,6 +17,10 @@ import routerTorneos from "../routes/torneo";
 import routerRoles from "../routes/roles";
 import routerApoyo from "../routes/apoyanos";
 import routerReportesComisarios from "../routes/reportesComisarios";
+import routerDigitadores from "../routes/digitadores";
+import routerGias from "../routes/guias";
+import routerLocutores from "../routes/locutores";
+import routerHistorial from "../routes/historial";
 
 class Server {
 
@@ -38,6 +42,10 @@ class Server {
         rol: '/api/rol',
         apoyo: '/api/apoyo',
         reportesComisarios: '/api/reportes-comisaros',
+        digitadores: '/api/digitadores',
+        guias: '/api/guias',
+        locutores: '/api/locutores',
+        historial: '/api/historial',
     }
 
     constructor(){
@@ -86,6 +94,10 @@ class Server {
         this.app.use(this.apiPaths.rol, routerRoles );
         this.app.use(this.apiPaths.apoyo, routerApoyo );
         this.app.use(this.apiPaths.reportesComisarios, routerReportesComisarios );
+        this.app.use(this.apiPaths.digitadores, routerDigitadores );
+        this.app.use(this.apiPaths.guias, routerGias );
+        this.app.use(this.apiPaths.locutores, routerLocutores );
+        this.app.use(this.apiPaths.historial, routerHistorial );
     }
 
     lisent() {

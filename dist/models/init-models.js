@@ -11,7 +11,9 @@ var _tb_asignacion_tipo_tickets = require("./tb_asignacion_tipo_tickets");
 var _tb_banner_patrocinadores = require("./tb_banner_patrocinadores");
 var _tb_banners_menu = require("./tb_banners_menu");
 var _tb_calendario_clasificatorios = require("./tb_calendario_clasificatorios");
+var _tb_camaras_transmisiones = require("./tb_camaras_transmisiones");
 var _tb_calendario = require("./tb_calendario");
+var _tb_guias = require("./tb_guias");
 var _tb_cat_coches = require("./tb_cat_coches");
 var _tb_cat_piloto = require("./tb_cat_piloto");
 var _tb_categoria_elo = require("./tb_categoria_elo");
@@ -27,6 +29,7 @@ var _tb_conceptos_comisarios = require("./tb_conceptos_comisarios");
 var _tb_contenido_grafico = require("./tb_contenido_grafico");
 var _tb_descargos_involucrados = require("./tb_descargos_involucrados");
 var _tb_divisiones = require("./tb_divisiones");
+var _tb_digitadores = require("./tb_digitadores");
 var _tb_divisiones_pilotos = require("./tb_divisiones_pilotos");
 var _tb_elo_actual = require("./tb_elo_actual");
 var _tb_elo_variacion = require("./tb_elo_variacion");
@@ -129,6 +132,11 @@ var _tb_tipos_graficos = require("./tb_tipos_graficos");
 var _tb_tipos_transmisiones = require("./tb_tipos_transmisiones");
 var _tb_torneos = require("./tb_torneos");
 var _tb_webhooks_discord = require("./tb_webhooks_discord");
+var _tb_salas_transmision = require("./tb_salas_transmision");
+var _tb_overlay_transmisiones = require("./tb_overlay_transmisiones");
+var _tb_radio_transmisiones = require("./tb_radio_transmisiones");
+var _tb_mensajes_radio = require("./tb_mensajes_radio");
+var _tb_tipos_overlay = require("./tb_tipos_overlay");
 const initModels = (sequelize = connection.default) => {
     var tb_reglas_torneos = _tb_reglas_torneos(sequelize, sequelize_1.DataTypes);
     var tb_analisis_stint = _tb_analisis_stint(sequelize, sequelize_1.DataTypes);
@@ -138,7 +146,9 @@ const initModels = (sequelize = connection.default) => {
     var tb_banner_patrocinadores = _tb_banner_patrocinadores(sequelize, sequelize_1.DataTypes);
     var tb_banners_menu = _tb_banners_menu(sequelize, sequelize_1.DataTypes);
     var tb_calendario_clasificatorios = _tb_calendario_clasificatorios(sequelize, sequelize_1.DataTypes);
+    var tb_camaras_transmisiones = _tb_camaras_transmisiones(sequelize, sequelize_1.DataTypes);
     var tb_calendario = _tb_calendario(sequelize, sequelize_1.DataTypes);
+    var tb_guias = _tb_guias(sequelize, sequelize_1.DataTypes);
     var tb_cat_coches = _tb_cat_coches(sequelize, sequelize_1.DataTypes);
     var tb_cat_piloto = _tb_cat_piloto(sequelize, sequelize_1.DataTypes);
     var tb_categoria_elo = _tb_categoria_elo(sequelize, sequelize_1.DataTypes);
@@ -148,12 +158,17 @@ const initModels = (sequelize = connection.default) => {
     var tb_cod_sim_clasificatorio = _tb_cod_sim_clasificatorio(sequelize, sequelize_1.DataTypes);
     var tb_codificacion_divisiones = _tb_codificacion_divisiones(sequelize, sequelize_1.DataTypes);
     var tb_codificacion_resultados = _tb_codificacion_resultados(sequelize, sequelize_1.DataTypes);
+    var tb_salas_transmision = _tb_salas_transmision(sequelize, sequelize_1.DataTypes);
+    var tb_overlay_transmisiones = _tb_overlay_transmisiones(sequelize, sequelize_1.DataTypes);
+    var tb_radio_transmisiones = _tb_radio_transmisiones(sequelize, sequelize_1.DataTypes);
+    var tb_mensajes_radio = _tb_mensajes_radio(sequelize, sequelize_1.DataTypes);
     var tb_comunicados = _tb_comunicados(sequelize, sequelize_1.DataTypes);
     var tb_comunicados_leidos = _tb_comunicados_leidos(sequelize, sequelize_1.DataTypes);
     var tb_conceptos_comisarios = _tb_conceptos_comisarios(sequelize, sequelize_1.DataTypes);
     var tb_contenido_grafico = _tb_contenido_grafico(sequelize, sequelize_1.DataTypes);
     var tb_descargos_involucrados = _tb_descargos_involucrados(sequelize, sequelize_1.DataTypes);
     var tb_divisiones = _tb_divisiones(sequelize, sequelize_1.DataTypes);
+    var tb_digitadores = _tb_digitadores(sequelize, sequelize_1.DataTypes);
     var tb_divisiones_pilotos = _tb_divisiones_pilotos(sequelize, sequelize_1.DataTypes);
     var tb_elo_actual = _tb_elo_actual(sequelize, sequelize_1.DataTypes);
     var tb_elo_variacion = _tb_elo_variacion(sequelize, sequelize_1.DataTypes);
@@ -256,6 +271,7 @@ const initModels = (sequelize = connection.default) => {
     var tb_tipos_transmisiones = _tb_tipos_transmisiones(sequelize, sequelize_1.DataTypes);
     var tb_torneos = _tb_torneos(sequelize, sequelize_1.DataTypes);
     var tb_webhooks_discord = _tb_webhooks_discord(sequelize, sequelize_1.DataTypes);
+    var tb_tipos_overlay = _tb_tipos_overlay(sequelize, sequelize_1.DataTypes);
     tb_conceptos_comisarios.belongsTo(tb_asignacion_comisario, { as: "idAsignacionComisario_tb_asignacion_comisario", foreignKey: "idAsignacionComisario" });
     tb_asignacion_comisario.hasMany(tb_conceptos_comisarios, { as: "tb_conceptos_comisarios", foreignKey: "idAsignacionComisario" });
     tb_pilotos_penalizados.belongsTo(tb_asignacion_comisario, { as: "idRolComisarioSancion_tb_asignacion_comisario", foreignKey: "idRolComisarioSancion" });
@@ -883,7 +899,10 @@ const initModels = (sequelize = connection.default) => {
         tb_banner_patrocinadores,
         tb_banners_menu,
         tb_calendario_clasificatorios,
+        tb_camaras_transmisiones,
         tb_calendario,
+        tb_guias,
+        tb_salas_transmision,
         tb_cat_coches,
         tb_cat_piloto,
         tb_categoria_elo,
@@ -899,6 +918,7 @@ const initModels = (sequelize = connection.default) => {
         tb_contenido_grafico,
         tb_descargos_involucrados,
         tb_divisiones,
+        tb_digitadores,
         tb_divisiones_pilotos,
         tb_elo_actual,
         tb_elo_variacion,
@@ -1001,6 +1021,10 @@ const initModels = (sequelize = connection.default) => {
         tb_tipos_transmisiones,
         tb_torneos,
         tb_webhooks_discord,
+        tb_overlay_transmisiones,
+        tb_radio_transmisiones,
+        tb_mensajes_radio,
+        tb_tipos_overlay
     };
 };
 exports.initModels = initModels;

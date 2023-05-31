@@ -9,7 +9,9 @@ var _tb_asignacion_tipo_tickets = require("./tb_asignacion_tipo_tickets");
 var _tb_banner_patrocinadores = require("./tb_banner_patrocinadores");
 var _tb_banners_menu = require("./tb_banners_menu");
 var _tb_calendario_clasificatorios = require("./tb_calendario_clasificatorios");
+var _tb_camaras_transmisiones = require("./tb_camaras_transmisiones");
 var _tb_calendario = require("./tb_calendario");
+var _tb_guias = require("./tb_guias");
 var _tb_cat_coches = require("./tb_cat_coches");
 var _tb_cat_piloto = require("./tb_cat_piloto");
 var _tb_categoria_elo = require("./tb_categoria_elo");
@@ -25,6 +27,7 @@ var _tb_conceptos_comisarios = require("./tb_conceptos_comisarios");
 var _tb_contenido_grafico = require("./tb_contenido_grafico");
 var _tb_descargos_involucrados = require("./tb_descargos_involucrados");
 var _tb_divisiones = require("./tb_divisiones");
+var _tb_digitadores = require("./tb_digitadores");
 var _tb_divisiones_pilotos = require("./tb_divisiones_pilotos");
 var _tb_elo_actual = require("./tb_elo_actual");
 var _tb_elo_variacion = require("./tb_elo_variacion");
@@ -127,6 +130,11 @@ var _tb_tipos_graficos = require("./tb_tipos_graficos");
 var _tb_tipos_transmisiones = require("./tb_tipos_transmisiones");
 var _tb_torneos = require("./tb_torneos");
 var _tb_webhooks_discord = require("./tb_webhooks_discord");
+var _tb_salas_transmision = require("./tb_salas_transmision");
+var _tb_overlay_transmisiones = require("./tb_overlay_transmisiones");
+var _tb_radio_transmisiones = require("./tb_radio_transmisiones");
+var _tb_mensajes_radio = require("./tb_mensajes_radio");
+var _tb_tipos_overlay = require("./tb_tipos_overlay");
 
 
 export const  initModels = (sequelize:any = connection.default) => {
@@ -138,7 +146,9 @@ export const  initModels = (sequelize:any = connection.default) => {
   var tb_banner_patrocinadores = _tb_banner_patrocinadores(sequelize, DataTypes);
   var tb_banners_menu = _tb_banners_menu(sequelize, DataTypes);
   var tb_calendario_clasificatorios = _tb_calendario_clasificatorios(sequelize, DataTypes);
+  var tb_camaras_transmisiones = _tb_camaras_transmisiones(sequelize, DataTypes);
   var tb_calendario = _tb_calendario(sequelize, DataTypes);
+  var tb_guias = _tb_guias(sequelize, DataTypes);
   var tb_cat_coches = _tb_cat_coches(sequelize, DataTypes);
   var tb_cat_piloto = _tb_cat_piloto(sequelize, DataTypes);
   var tb_categoria_elo = _tb_categoria_elo(sequelize, DataTypes);
@@ -148,12 +158,17 @@ export const  initModels = (sequelize:any = connection.default) => {
   var tb_cod_sim_clasificatorio = _tb_cod_sim_clasificatorio(sequelize, DataTypes);
   var tb_codificacion_divisiones = _tb_codificacion_divisiones(sequelize, DataTypes);
   var tb_codificacion_resultados = _tb_codificacion_resultados(sequelize, DataTypes);
+  var tb_salas_transmision = _tb_salas_transmision(sequelize, DataTypes);
+  var tb_overlay_transmisiones = _tb_overlay_transmisiones(sequelize, DataTypes);
+  var tb_radio_transmisiones = _tb_radio_transmisiones(sequelize, DataTypes);
+  var tb_mensajes_radio = _tb_mensajes_radio(sequelize, DataTypes);
   var tb_comunicados = _tb_comunicados(sequelize, DataTypes);
   var tb_comunicados_leidos = _tb_comunicados_leidos(sequelize, DataTypes);
   var tb_conceptos_comisarios = _tb_conceptos_comisarios(sequelize, DataTypes);
   var tb_contenido_grafico = _tb_contenido_grafico(sequelize, DataTypes);
   var tb_descargos_involucrados = _tb_descargos_involucrados(sequelize, DataTypes);
   var tb_divisiones = _tb_divisiones(sequelize, DataTypes);
+  var tb_digitadores = _tb_digitadores(sequelize, DataTypes);
   var tb_divisiones_pilotos = _tb_divisiones_pilotos(sequelize, DataTypes);
   var tb_elo_actual = _tb_elo_actual(sequelize, DataTypes);
   var tb_elo_variacion = _tb_elo_variacion(sequelize, DataTypes);
@@ -256,6 +271,7 @@ export const  initModels = (sequelize:any = connection.default) => {
   var tb_tipos_transmisiones = _tb_tipos_transmisiones(sequelize, DataTypes);
   var tb_torneos = _tb_torneos(sequelize, DataTypes);
   var tb_webhooks_discord = _tb_webhooks_discord(sequelize, DataTypes);
+  var tb_tipos_overlay = _tb_tipos_overlay(sequelize, DataTypes);
 
   tb_conceptos_comisarios.belongsTo(tb_asignacion_comisario, { as: "idAsignacionComisario_tb_asignacion_comisario", foreignKey: "idAsignacionComisario"});
   tb_asignacion_comisario.hasMany(tb_conceptos_comisarios, { as: "tb_conceptos_comisarios", foreignKey: "idAsignacionComisario"});
@@ -885,7 +901,10 @@ export const  initModels = (sequelize:any = connection.default) => {
     tb_banner_patrocinadores,
     tb_banners_menu,
     tb_calendario_clasificatorios,
+    tb_camaras_transmisiones,
     tb_calendario,
+    tb_guias,
+    tb_salas_transmision,
     tb_cat_coches,
     tb_cat_piloto,
     tb_categoria_elo,
@@ -901,6 +920,7 @@ export const  initModels = (sequelize:any = connection.default) => {
     tb_contenido_grafico,
     tb_descargos_involucrados,
     tb_divisiones,
+    tb_digitadores,
     tb_divisiones_pilotos,
     tb_elo_actual,
     tb_elo_variacion,
@@ -1003,6 +1023,10 @@ export const  initModels = (sequelize:any = connection.default) => {
     tb_tipos_transmisiones,
     tb_torneos,
     tb_webhooks_discord,
+    tb_overlay_transmisiones,
+    tb_radio_transmisiones,
+    tb_mensajes_radio,
+    tb_tipos_overlay
   };
 }
 

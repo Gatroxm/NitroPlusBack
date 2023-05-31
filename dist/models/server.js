@@ -30,6 +30,10 @@ const torneo_1 = __importDefault(require("../routes/torneo"));
 const roles_1 = __importDefault(require("../routes/roles"));
 const apoyanos_1 = __importDefault(require("../routes/apoyanos"));
 const reportesComisarios_1 = __importDefault(require("../routes/reportesComisarios"));
+const digitadores_1 = __importDefault(require("../routes/digitadores"));
+const guias_1 = __importDefault(require("../routes/guias"));
+const locutores_1 = __importDefault(require("../routes/locutores"));
+const historial_1 = __importDefault(require("../routes/historial"));
 class Server {
     constructor() {
         this.apiPaths = {
@@ -47,6 +51,10 @@ class Server {
             rol: '/api/rol',
             apoyo: '/api/apoyo',
             reportesComisarios: '/api/reportes-comisaros',
+            digitadores: '/api/digitadores',
+            guias: '/api/guias',
+            locutores: '/api/locutores',
+            historial: '/api/historial',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '3000';
@@ -88,6 +96,10 @@ class Server {
         this.app.use(this.apiPaths.rol, roles_1.default);
         this.app.use(this.apiPaths.apoyo, apoyanos_1.default);
         this.app.use(this.apiPaths.reportesComisarios, reportesComisarios_1.default);
+        this.app.use(this.apiPaths.digitadores, digitadores_1.default);
+        this.app.use(this.apiPaths.guias, guias_1.default);
+        this.app.use(this.apiPaths.locutores, locutores_1.default);
+        this.app.use(this.apiPaths.historial, historial_1.default);
     }
     lisent() {
         this.app.listen(this.port, () => {
