@@ -7,7 +7,7 @@ const models = initModels(sequelize);
 
 export const getGias = async (req: Request, res: Response) => {
 
-    const query = `SELECT tb_simulador.nombre AS Simulador, tb_guias.nombre AS Guia, tb_guias.guiaHTML FROM tb_guias LEFT JOIN tb_simulador ON tb_guias.idSimulador = tb_simulador.id WHERE (((tb_simulador.idEstado)=1)) OR (((tb_guias.idEstado)=1)) ORDER BY tb_guias.noOrden; `;
+    const query = `SELECT IFNULL(tb_simulador.nombre,'General') AS Simulador, tb_guias.nombre AS Guia, tb_guias.guiaHTML FROM tb_guias LEFT JOIN tb_simulador ON tb_guias.idSimulador = tb_simulador.id WHERE (((tb_simulador.idEstado)=1)) OR (((tb_guias.idEstado)=1)) ORDER BY tb_guias.noOrden; `;
   
     try {
       const respuesta =

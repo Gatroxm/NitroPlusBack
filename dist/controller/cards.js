@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCalendarioDelTornaoMasInfo = exports.getSancionadosMasInfo = exports.insetb_camaras_transmisiones = exports.ModaltablaReportesDeLaFecha = exports.InfoTorneo = exports.tablaConfirmados = exports.confirmacion = exports.InsertApelacionAclaracion = exports.modalInformacionGeneral = exports.getTblaRepeticiones = exports.GuardadoReporte = exports.getPilotosParticipantes = exports.tblPosiciones = exports.InsertTbRepeticiones = exports.tablaResultados = void 0;
+exports.getSistemaDePuntosMasInfo = exports.getCalendarioDelTornaoMasInfo = exports.getSancionadosMasInfo = exports.insetb_camaras_transmisiones = exports.ModaltablaReportesDeLaFecha = exports.InfoTorneo = exports.tablaConfirmados = exports.confirmacion = exports.InsertApelacionAclaracion = exports.modalInformacionGeneral = exports.getTblaRepeticiones = exports.GuardadoReporte = exports.getPilotosParticipantes = exports.tblPosiciones = exports.InsertTbRepeticiones = exports.tablaResultados = void 0;
 const sequelize_1 = require("sequelize");
 const { sequelize } = require("sequelize");
 const init_models_1 = require("../models/init-models");
@@ -452,7 +452,8 @@ const getSancionadosMasInfo = (req, res) => __awaiter(void 0, void 0, void 0, fu
 exports.getSancionadosMasInfo = getSancionadosMasInfo;
 const getCalendarioDelTornaoMasInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const query = `SELECT tb_torneos.nombre AS Torneo, tb_divisiones.nombre AS Division, tb_calendario.nombreEvento AS Evento, tb_calendario.fechaHoraCarrera AS Fecha_Hora, tb_estado_carrera.nombre AS Estado FROM (tb_calendario AS tb_calendario_1 INNER JOIN ((tb_calendario INNER JOIN tb_divisiones ON tb_calendario.idDivision = tb_divisiones.id) INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo) ON tb_calendario_1.idDivision = tb_calendario.idDivision) INNER JOIN tb_estado_carrera ON tb_calendario.idEstadoCarrera = tb_estado_carrera.id WHERE (((tb_calendario_1.id)=${id}) AND ((tb_torneos.idEstadoTorneo)=1) AND ((tb_divisiones.idEstado)=1)) ORDER BY tb_calendario.fechaHoraCarrera;`;
+    const query = `SELECT tb_torneos.nombre AS Torneo, tb_divisiones.nombre AS Division, tb_calendario.nombreEvento AS Evento, tb_calendario.fechaHoraCarrera AS Fecha_Hora, tb_estado_carrera.nombre AS Estado, tb_sistema_puntos.nombre AS Sistema_Pts, tb_calendario.urlTransmision AS Transm	FROM ((tb_calendario AS tb_calendario_1 INNER JOIN ((tb_calendario INNER JOIN tb_divisiones ON tb_calendario.idDivision = tb_divisiones.id) INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo) ON tb_calendario_1.idDivision = tb_calendario.idDivision) INNER JOIN tb_estado_carrera ON tb_calendario.idEstadoCarrera = tb_estado_carrera.id) LEFT JOIN tb_sistema_puntos ON tb_calendario.idSistemaPuntos = tb_sistema_puntos.id WHERE (((tb_calendario_1.id)=${id}) AND ((tb_divisiones.idEstado)=1)) ORDER BY tb_calendario.fechaHoraCarrera;
+  `;
     const resultados = yield models.tb_calendario.sequelize.query(query, {
         type: sequelize_1.QueryTypes.SELECT,
     });
@@ -470,4 +471,24 @@ const getCalendarioDelTornaoMasInfo = (req, res) => __awaiter(void 0, void 0, vo
     }
 });
 exports.getCalendarioDelTornaoMasInfo = getCalendarioDelTornaoMasInfo;
+const getSistemaDePuntosMasInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const query = `SELECT tb_sistema_puntos.nombre AS Sistema, tb_ident_pos.nombreCorto AS Posicion, tb_ident_pos.nombre AS Descrip, tb_puntos.puntos AS Puntos FROM ((tb_calendario AS tb_calendario_1 INNER JOIN tb_sistema_puntos ON tb_calendario_1.idSistemaPuntos = tb_sistema_puntos.id) INNER JOIN tb_calendario ON tb_calendario_1.idDivision = tb_calendario.idDivision) INNER JOIN tb_puntos ON tb_sistema_puntos.id = tb_puntos.idSistemaPuntos INNER JOIN tb_ident_pos ON tb_puntos.idIdentPos = tb_ident_pos.id WHERE tb_calendario_1.id = ${id} AND tb_sistema_puntos.id <> 6 GROUP BY tb_calendario_1.id, tb_sistema_puntos.nombre, tb_ident_pos.nombreCorto, tb_ident_pos.nombre, tb_puntos.puntos, tb_sistema_puntos.id, tb_puntos.idIdentPos ORDER BY tb_sistema_puntos.id, tb_puntos.idIdentPos;`;
+    const resultados = yield models.tb_calendario.sequelize.query(query, {
+        type: sequelize_1.QueryTypes.SELECT,
+    });
+    if (resultados.length > 0) {
+        return res.status(200).json({
+            ok: true,
+            resultados,
+        });
+    }
+    else {
+        return res.status(404).json({
+            ok: false,
+            msg: "No cuentas con resultados",
+        });
+    }
+});
+exports.getSistemaDePuntosMasInfo = getSistemaDePuntosMasInfo;
 //# sourceMappingURL=cards.js.map

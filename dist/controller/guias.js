@@ -15,7 +15,7 @@ const { sequelize } = require("sequelize");
 const init_models_1 = require("../models/init-models");
 const models = (0, init_models_1.initModels)(sequelize);
 const getGias = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const query = `SELECT tb_simulador.nombre AS Simulador, tb_guias.nombre AS Guia, tb_guias.guiaHTML FROM tb_guias LEFT JOIN tb_simulador ON tb_guias.idSimulador = tb_simulador.id WHERE (((tb_simulador.idEstado)=1)) OR (((tb_guias.idEstado)=1)) ORDER BY tb_guias.noOrden; `;
+    const query = `SELECT IFNULL(tb_simulador.nombre,'General') AS Simulador, tb_guias.nombre AS Guia, tb_guias.guiaHTML FROM tb_guias LEFT JOIN tb_simulador ON tb_guias.idSimulador = tb_simulador.id WHERE (((tb_simulador.idEstado)=1)) OR (((tb_guias.idEstado)=1)) ORDER BY tb_guias.noOrden; `;
     try {
         const respuesta = yield models.tb_guias.sequelize.query(query, {
             type: sequelize_1.QueryTypes.SELECT,
