@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.callAplicarSancion = exports.pestannaConceptosReportesPendientesLideres = exports.pestannaSancionados = exports.pestannaConceptos = exports.getHistorialDeReportes = exports.updateConceptos = exports.getGravedad = exports.getSancionPropuesta = exports.getReportesPendientes = void 0;
+exports.callAplicarSancion = exports.getTablaSanciones = exports.pestannaConceptosReportesPendientesLideres = exports.pestannaSancionados = exports.pestannaConceptos = exports.getHistorialDeReportes = exports.updateConceptos = exports.getGravedad = exports.getSancionPropuesta = exports.getReportesPendientesRevisores = exports.getReportesPendientes = void 0;
 const sequelize_1 = require("sequelize");
 const { sequelize } = require("sequelize");
 const init_models_1 = require("../models/init-models");
@@ -42,6 +42,34 @@ const getReportesPendientes = (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.getReportesPendientes = getReportesPendientes;
+const getReportesPendientesRevisores = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const query = `SELECT tb_conceptos_comisarios.idReporte, tb_torneos.nombre AS Torneo, tb_divisiones.nombre AS Division, tb_calendario.nombreEvento AS Evento, tb_roles_pilotos.idPiloto, tb_conceptos_comisarios.idSancion, tb_conceptos_comisarios.idGravedad, tb_reportes_comisarios.idEstadoReporte, tb_divisiones.horasFinReportes, tb_divisiones.horasFinApelaciones, tb_divisiones.horasFinConceptosComisarios, tb_conceptos_comisarios.id AS idConcepto, tb_conceptos_comisarios.concepto, tb_calendario.fechaHoraCarrera, DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinApelaciones HOUR ) AS FinApelaciones, DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinConceptosComisarios HOUR ) AS CierreConceptos FROM tb_divisiones INNER JOIN tb_calendario ON tb_divisiones.id = tb_calendario.idDivision INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo INNER JOIN tb_reportes_comisarios ON tb_calendario.id = tb_reportes_comisarios.idCalendario INNER JOIN tb_conceptos_comisarios ON tb_reportes_comisarios.id = tb_conceptos_comisarios.idReporte INNER JOIN tb_asignacion_comisario ON tb_conceptos_comisarios.idAsignacionComisario = tb_asignacion_comisario.id INNER JOIN tb_roles_pilotos ON tb_asignacion_comisario.idRolPilotoComisario = tb_roles_pilotos.id WHERE tb_roles_pilotos.idPiloto = ${id} AND tb_reportes_comisarios.idEstadoReporte = 1 AND tb_conceptos_comisarios.concepto IS NULL AND NOW() BETWEEN DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinApelaciones HOUR ) AND DATE_ADD( convertir_a_utc(tb_calendario.fechaHoraCarrera), INTERVAL tb_divisiones.horasFinConceptosComisarios HOUR ) ORDER BY tb_conceptos_comisarios.idReporte DESC;`;
+    try {
+        const resultados = yield models.tb_divisiones.sequelize.query(query, {
+            type: sequelize_1.QueryTypes.SELECT,
+        });
+        if (resultados.length > 0) {
+            return res.status(200).json({
+                ok: true,
+                resultados,
+            });
+        }
+        else {
+            return res.status(404).json({
+                ok: false,
+                msg: "No cuentas con resultados",
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.getReportesPendientesRevisores = getReportesPendientesRevisores;
 const getSancionPropuesta = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const query = `SELECT tb_tabla_sanciones.titulo, tb_tabla_sanciones.id FROM tb_tabla_sanciones WHERE tb_tabla_sanciones.idEstado = 1 ORDER BY tb_tabla_sanciones.titulo ;`;
@@ -243,6 +271,33 @@ const pestannaConceptosReportesPendientesLideres = (req, res) => __awaiter(void 
     }
 });
 exports.pestannaConceptosReportesPendientesLideres = pestannaConceptosReportesPendientesLideres;
+const getTablaSanciones = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = `SELECT tb_tabla_sanciones.seccion, tb_tabla_sanciones.titulo, tb_gravedad_sancion.nombre, GROUP_CONCAT(CONCAT(tb_tipo_penalizacion.unidadDeMedida, IF(tb_penalizacion_sanciones.valor=0,'',CONCAT(':',tb_penalizacion_sanciones.valor))) ORDER BY tb_tipo_penalizacion.id  DESC SEPARATOR ' // ') AS Sancion, GROUP_CONCAT(tb_penalizacion_sanciones.descripcion SEPARATOR ' // ') AS Descrip FROM ((tb_penalizacion_sanciones INNER JOIN tb_tabla_sanciones ON tb_penalizacion_sanciones.idSancion = tb_tabla_sanciones.id) INNER JOIN tb_gravedad_sancion ON tb_penalizacion_sanciones.idGravedad = tb_gravedad_sancion.id) INNER JOIN tb_tipo_penalizacion ON tb_penalizacion_sanciones.idTipoPenalizacion = tb_tipo_penalizacion.id WHERE tb_tabla_sanciones.idEstado = 1 AND tb_penalizacion_sanciones.idEstado = 1 GROUP BY tb_tabla_sanciones.seccion, tb_tabla_sanciones.titulo, tb_gravedad_sancion.nombre ORDER BY tb_tabla_sanciones.seccion,tb_tabla_sanciones.titulo, tb_gravedad_sancion.id`;
+    try {
+        const resultados = yield models.tb_penalizacion_sanciones.sequelize.query(query, {
+            type: sequelize_1.QueryTypes.SELECT,
+        });
+        if (resultados.length > 0) {
+            return res.status(200).json({
+                ok: true,
+                resultados,
+            });
+        }
+        else {
+            return res.status(404).json({
+                ok: false,
+                msg: "No cuentas con resultados",
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.getTablaSanciones = getTablaSanciones;
 const callAplicarSancion = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { idReporte, idInvolucrado, idSancion, idGravedad, idPiloto } = req.body;
     const query = `CALL aplicar_sancion(${idReporte},${idInvolucrado},${idSancion},${idGravedad},${idPiloto})`;

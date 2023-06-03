@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getResultados = exports.getReportes = exports.getLicencias = exports.getSimuladores = exports.getCalendario = exports.getPilotoDelDia = exports.getVueltaRapida = exports.getPoles = exports.getDSQ = exports.getDNF = exports.getPodios = exports.getUltimosReportesCerrados = exports.gteUltimosReportesEnProceso = exports.getUltimosResultados = exports.getProximasCarreras = exports.nombreCortoPiloto = exports.totalVictorias = exports.totalParticipaciones = void 0;
+exports.getRepeticiones = exports.getResultados = exports.getReportes = exports.getLicencias = exports.getSimuladores = exports.getCalendario = exports.getPilotoDelDia = exports.getVueltaRapida = exports.getPoles = exports.getDSQ = exports.getDNF = exports.getPodios = exports.getUltimosReportesCerrados = exports.gteUltimosReportesEnProceso = exports.getUltimosResultados = exports.getProximasCarreras = exports.nombreCortoPiloto = exports.totalVictorias = exports.totalParticipaciones = void 0;
 const sequelize_1 = require("sequelize");
 const { sequelize } = require("sequelize");
 const init_models_1 = require("../models/init-models");
@@ -519,4 +519,30 @@ const getResultados = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.getResultados = getResultados;
+const getRepeticiones = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const query = `SELECT tb_pilotos.nombreCorto, tb_repeticiones.link_video, tb_repeticiones.observaciones, CONCAT('https://multimedia.nitrosimracing.com.co/plantillasphp/previewrepeticiones.php?&id=',tb_repeticiones.id) as Player, CONCAT('https://multimedia.nitrosimracing.com.co/plantillasphp/previewrepeticionespop.php?&id=',tb_repeticiones.id) as Rep FROM tb_repeticiones INNER JOIN tb_pilotos ON  tb_repeticiones.idPiloto = tb_pilotos.id WHERE (((tb_repeticiones.idCalendario)=${id})) ORDER BY tb_repeticiones.id;`;
+    try {
+        const resultados = yield models.tb_repeticiones.sequelize.query(query, { type: sequelize_1.QueryTypes.SELECT });
+        if (resultados.length > 0) {
+            return res.status(200).json({
+                ok: true,
+                resultados
+            });
+        }
+        else {
+            return res.status(404).json({
+                ok: false,
+                msg: 'No cuentas con resultados'
+            });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.getRepeticiones = getRepeticiones;
 //# sourceMappingURL=consultas.js.map

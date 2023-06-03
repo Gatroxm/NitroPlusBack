@@ -17,7 +17,8 @@ import {
     totalParticipaciones,
     totalVictorias, 
     getReportes,
-    getResultados
+    getResultados,
+    getRepeticiones
 } from "../controller/consultas";
 
 const routerConsultas = Router();
@@ -40,6 +41,7 @@ routerConsultas.get('/simuladores/:id', getSimuladores );
 routerConsultas.get('/licencias/:id', getLicencias );
 routerConsultas.get('/reportes/:id', getReportes );
 routerConsultas.get('/resultados/:id', getResultados );
+routerConsultas.get('/getRepeticiones/:id', getRepeticiones );
 
 
 

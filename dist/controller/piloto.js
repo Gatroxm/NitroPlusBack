@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getImagenPiloto = exports.getPilotoByidSim = exports.updatePiloto = exports.changePassword = exports.createPiloto = exports.updatePilotoInActivo = exports.getPilotosDesActivados = exports.LogIn = exports.getPiloto = exports.getAllPilotos = void 0;
+exports.AceptaWhatsapp = exports.AceptaCorreos = exports.getImagenPiloto = exports.getPilotoByidSim = exports.updatePiloto = exports.changePassword = exports.createPiloto = exports.updatePilotoInActivo = exports.getPilotosDesActivados = exports.LogIn = exports.getPiloto = exports.getAllPilotos = void 0;
 const init_models_1 = require("../models/init-models");
 const bcrypt = require("bcrypt");
 const { Op, sequelize, QueryTypes } = require("sequelize");
@@ -388,4 +388,30 @@ const getImagenPiloto = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getImagenPiloto = getImagenPiloto;
+const AceptaCorreos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, aceptaCorreos } = req.body;
+    const respuesta = yield models.tb_pilotos.update({
+        aceptaCorreos: aceptaCorreos
+    }, {
+        where: { id: id }
+    });
+    return res.status(200).json({
+        ok: true,
+        respuesta
+    });
+});
+exports.AceptaCorreos = AceptaCorreos;
+const AceptaWhatsapp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, aceptaWhatsapp } = req.body;
+    const respuesta = yield models.tb_pilotos.update({
+        aceptaWhatsapp: aceptaWhatsapp
+    }, {
+        where: { id: id }
+    });
+    return res.status(200).json({
+        ok: true,
+        respuesta
+    });
+});
+exports.AceptaWhatsapp = AceptaWhatsapp;
 //# sourceMappingURL=piloto.js.map

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatetb_salas_transmision = exports.selectTablaCams = exports.getTablaCams = exports.updatetTb_overlay_transmisiones = exports.SelectPOverlayNoRequiereConfirmacion = exports.SelectPOverlayRequiereConfirmacion = exports.pestanaOverlays = exports.updateSala = exports.getTransmisiones = exports.LIMPIARSALATRANSMISION = exports.SelectorCarreraLocutores = exports.gettablaLocutores = void 0;
+exports.insertTbRadioTransmisores = exports.SelectorMensaje = exports.updatetb_salas_transmision = exports.selectTablaCams = exports.getTablaCams = exports.updatetTb_overlay_transmisiones = exports.SelectPOverlayNoRequiereConfirmacion = exports.SelectPOverlayRequiereConfirmacion = exports.pestanaOverlays = exports.updateSala = exports.getTransmisiones = exports.LIMPIARSALATRANSMISION = exports.SelectorCarreraLocutores = exports.gettablaLocutores = void 0;
 const sequelize_1 = require("sequelize");
 const { sequelize } = require("sequelize");
 const init_models_1 = require("../models/init-models");
@@ -250,4 +250,49 @@ const updatetb_salas_transmision = (req, res) => __awaiter(void 0, void 0, void 
     }
 });
 exports.updatetb_salas_transmision = updatetb_salas_transmision;
+const SelectorMensaje = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = `SELECT tb_mensajes_radio.nombre, tb_mensajes_radio.id FROM tb_mensajes_radio ORDER BY tb_mensajes_radio.nombre;`;
+    try {
+        const respuesta = yield models.tb_mensajes_radio.sequelize.query(query, {
+            type: sequelize_1.QueryTypes.SELECT,
+        });
+        return res.json({
+            ok: true,
+            respuesta,
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.SelectorMensaje = SelectorMensaje;
+const insertTbRadioTransmisores = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { idSala, idPiloto, idMensaje, personalizadoPiloto, personalizadoEquipo, } = req.body;
+    try {
+        const respuesta = yield models.tb_radio_transmisiones.update({
+            idPiloto: idPiloto,
+            idMensaje: idMensaje,
+            personalizadoPiloto: personalizadoPiloto,
+            personalizadoEquipo: personalizadoEquipo,
+        }, {
+            where: {
+                idSala: idSala
+            }
+        });
+        return res.json({
+            ok: true,
+            respuesta,
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            ok: false,
+            error: error,
+        });
+    }
+});
+exports.insertTbRadioTransmisores = insertTbRadioTransmisores;
 //# sourceMappingURL=locutores.js.map

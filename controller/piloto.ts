@@ -427,3 +427,32 @@ export const getImagenPiloto = async (req:Request, res:Response) => {
   }
 
 }
+
+export const AceptaCorreos = async (req:Request, res:Response) => {
+
+  const {id, aceptaCorreos} = req.body;
+
+  const respuesta = await models.tb_pilotos.update({
+    aceptaCorreos:aceptaCorreos
+  }, {
+    where: {id: id}
+  })
+  return res.status(200).json({
+    ok:true,
+    respuesta
+  });
+}
+export const AceptaWhatsapp = async (req:Request, res:Response) => {
+
+  const {id, aceptaWhatsapp} = req.body;
+
+  const respuesta = await models.tb_pilotos.update({
+    aceptaWhatsapp:aceptaWhatsapp
+  }, {
+    where: {id: id}
+  })
+  return res.status(200).json({
+    ok:true,
+    respuesta
+  });
+}

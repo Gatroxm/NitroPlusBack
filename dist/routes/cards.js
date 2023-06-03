@@ -18,6 +18,7 @@ routerCards.get('/modal-reportes-dela-fecha/:id', cards_1.ModaltablaReportesDeLa
 routerCards.get('/getSancionadosMasInfo/:id', cards_1.getSancionadosMasInfo);
 routerCards.get('/getSistemaDePuntosMasInfo/:id', cards_1.getSistemaDePuntosMasInfo);
 routerCards.get('/getCalendarioDelTornaoMasInfo/:id', cards_1.getCalendarioDelTornaoMasInfo);
+routerCards.get('/getConfirmacion/:idCalendario/:idPiloto', cards_1.getConfirmacion);
 routerCards.post('/insetb_camaras_transmisiones', cards_1.insetb_camaras_transmisiones);
 exports.default = routerCards;
 //# sourceMappingURL=cards.js.map

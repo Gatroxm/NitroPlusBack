@@ -12,8 +12,10 @@ routerLocutores.get('/limpiarsalatransmision/:id', locutores_1.LIMPIARSALATRANSM
 routerLocutores.get('/pestanaOverlays/:id', locutores_1.pestanaOverlays);
 routerLocutores.get('/SelectPOverlayRequiereConfirmacion/:id', locutores_1.SelectPOverlayRequiereConfirmacion);
 routerLocutores.get('/SelectPOverlayNoRequiereConfirmacion/:id', locutores_1.SelectPOverlayNoRequiereConfirmacion);
+routerLocutores.get('/SelectorMensaje', locutores_1.SelectorMensaje);
 routerLocutores.put('/updateSala', locutores_1.updateSala);
 routerLocutores.put('/updatetTb_overlay_transmisiones', locutores_1.updatetTb_overlay_transmisiones);
 routerLocutores.put('/updatetb_salas_transmision', locutores_1.updatetb_salas_transmision);
+routerLocutores.put('/insertTbRadioTransmisores', locutores_1.insertTbRadioTransmisores);
 exports.default = routerLocutores;
 //# sourceMappingURL=locutores.js.map

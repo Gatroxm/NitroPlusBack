@@ -506,4 +506,33 @@ export const getResultados = async (req: Request, res: Response) => {
   }
 
 }
+export const getRepeticiones = async (req: Request, res: Response) => {
+
+  const {id} = req.params;
+  const query = `SELECT tb_pilotos.nombreCorto, tb_repeticiones.link_video, tb_repeticiones.observaciones, CONCAT('https://multimedia.nitrosimracing.com.co/plantillasphp/previewrepeticiones.php?&id=',tb_repeticiones.id) as Player, CONCAT('https://multimedia.nitrosimracing.com.co/plantillasphp/previewrepeticionespop.php?&id=',tb_repeticiones.id) as Rep FROM tb_repeticiones INNER JOIN tb_pilotos ON  tb_repeticiones.idPiloto = tb_pilotos.id WHERE (((tb_repeticiones.idCalendario)=${id})) ORDER BY tb_repeticiones.id;`
+
+  try {
+    const resultados = await models.tb_repeticiones.sequelize.query(
+      query,
+      { type: QueryTypes.SELECT }
+    );
+    if(resultados.length > 0) {
+      return res.status(200).json({
+        ok:true,
+        resultados
+      })
+    } else {
+      return res.status(404).json({
+        ok:false,
+        msg:'No cuentas con resultados'
+      })
+    }
+  }  catch (error) {
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+
+}
 

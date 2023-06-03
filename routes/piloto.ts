@@ -9,7 +9,9 @@ import {
     getPilotosDesActivados, 
     LogIn, 
     updatePiloto, 
-    updatePilotoInActivo 
+    updatePilotoInActivo,
+    AceptaWhatsapp,
+    AceptaCorreos
 } from "../controller/piloto";
 
 const routerPolitos = Router();
@@ -24,5 +26,7 @@ routerPolitos.post('/login', LogIn);
 routerPolitos.post('/register', createPiloto);
 routerPolitos.put('/changue-parword', changePassword);
 routerPolitos.put('/edit', updatePiloto);
+routerPolitos.put('/AceptaCorreos', AceptaCorreos);
+routerPolitos.put('/AceptaWhatsapp', AceptaWhatsapp);
 
 export default routerPolitos;

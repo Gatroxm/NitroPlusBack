@@ -140,6 +140,7 @@ export const createRegistrosMasivosTblResultados = async (req: Request, res: Res
             });
         }
     } catch (error) {
+        console.log(error);
         return res.status(500).json({
             ok: true,
             msg: "Filas Registradas"

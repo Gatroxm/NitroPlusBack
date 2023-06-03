@@ -13,5 +13,7 @@ routerPolitos.post('/login', piloto_1.LogIn);
 routerPolitos.post('/register', piloto_1.createPiloto);
 routerPolitos.put('/changue-parword', piloto_1.changePassword);
 routerPolitos.put('/edit', piloto_1.updatePiloto);
+routerPolitos.put('/AceptaCorreos', piloto_1.AceptaCorreos);
+routerPolitos.put('/AceptaWhatsapp', piloto_1.AceptaWhatsapp);
 exports.default = routerPolitos;
 //# sourceMappingURL=piloto.js.map

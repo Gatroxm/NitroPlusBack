@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { LIMPIARSALATRANSMISION, SelectPOverlayNoRequiereConfirmacion, SelectPOverlayRequiereConfirmacion, SelectorCarreraLocutores, getTablaCams, getTransmisiones, gettablaLocutores, pestanaOverlays, selectTablaCams, updateSala, updatetTb_overlay_transmisiones, updatetb_salas_transmision } from "../controller/locutores";
+import { LIMPIARSALATRANSMISION, SelectPOverlayNoRequiereConfirmacion, SelectPOverlayRequiereConfirmacion, SelectorCarreraLocutores, SelectorMensaje, getTablaCams, getTransmisiones, gettablaLocutores, insertTbRadioTransmisores, pestanaOverlays, selectTablaCams, updateSala, updatetTb_overlay_transmisiones, updatetb_salas_transmision } from "../controller/locutores";
 const routerLocutores = Router();
 
 routerLocutores.get('/', gettablaLocutores);
@@ -11,8 +11,10 @@ routerLocutores.get('/limpiarsalatransmision/:id', LIMPIARSALATRANSMISION);
 routerLocutores.get('/pestanaOverlays/:id', pestanaOverlays);
 routerLocutores.get('/SelectPOverlayRequiereConfirmacion/:id', SelectPOverlayRequiereConfirmacion);
 routerLocutores.get('/SelectPOverlayNoRequiereConfirmacion/:id', SelectPOverlayNoRequiereConfirmacion);
+routerLocutores.get('/SelectorMensaje', SelectorMensaje);
 routerLocutores.put('/updateSala', updateSala);
 routerLocutores.put('/updatetTb_overlay_transmisiones', updatetTb_overlay_transmisiones);
 routerLocutores.put('/updatetb_salas_transmision', updatetb_salas_transmision);
+routerLocutores.put('/insertTbRadioTransmisores', insertTbRadioTransmisores);
 
 export default routerLocutores;

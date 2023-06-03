@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSistemaDePuntosMasInfo = exports.getCalendarioDelTornaoMasInfo = exports.getSancionadosMasInfo = exports.insetb_camaras_transmisiones = exports.ModaltablaReportesDeLaFecha = exports.InfoTorneo = exports.tablaConfirmados = exports.confirmacion = exports.InsertApelacionAclaracion = exports.modalInformacionGeneral = exports.getTblaRepeticiones = exports.GuardadoReporte = exports.getPilotosParticipantes = exports.tblPosiciones = exports.InsertTbRepeticiones = exports.tablaResultados = void 0;
+exports.getConfirmacion = exports.getSistemaDePuntosMasInfo = exports.getCalendarioDelTornaoMasInfo = exports.getSancionadosMasInfo = exports.insetb_camaras_transmisiones = exports.ModaltablaReportesDeLaFecha = exports.InfoTorneo = exports.tablaConfirmados = exports.confirmacion = exports.InsertApelacionAclaracion = exports.modalInformacionGeneral = exports.getTblaRepeticiones = exports.GuardadoReporte = exports.getPilotosParticipantes = exports.tblPosiciones = exports.InsertTbRepeticiones = exports.tablaResultados = void 0;
 const sequelize_1 = require("sequelize");
 const { sequelize } = require("sequelize");
 const init_models_1 = require("../models/init-models");
@@ -206,9 +206,7 @@ const modalInformacionGeneral = (req, res) => __awaiter(void 0, void 0, void 0, 
     const { id } = req.params;
     const response = [];
     const query = `SELECT tb_reportes_comisarios.id AS idReporte, tb_estado_reportes.id AS idEstado, tb_estado_reportes.nombre AS Estado, convertir_a_utc(tb_reportes_comisarios.fechaReporte) as fechaIncidente, tb_calendario.nombreEvento, convertir_a_utc(tb_calendario.fechaHoraCarrera) as fechaHoraCarrera FROM ( tb_reportes_comisarios INNER JOIN tb_calendario ON tb_reportes_comisarios.idCalendario = tb_calendario.id ) INNER JOIN tb_estado_reportes ON tb_reportes_comisarios.idEstadoReporte = tb_estado_reportes.id WHERE ( ( (tb_reportes_comisarios.id) = ${id} ) );`;
-    const query2 = `SELECT tb_reportes_comisarios.id AS idReporte,tb_involucrados_sanciones.id, tb_pilotos.nombreCorto AS nombrePiloto, tb_rol_involucrados.nombre AS Rol
-  FROM tb_reportes_comisarios INNER JOIN ((tb_involucrados_sanciones INNER JOIN tb_pilotos ON tb_involucrados_sanciones.idPiloto = tb_pilotos.id) INNER JOIN tb_rol_involucrados ON tb_involucrados_sanciones.idRolInvolucrado = tb_rol_involucrados.id) ON tb_reportes_comisarios.id = tb_involucrados_sanciones.idReporte
-  WHERE (((tb_reportes_comisarios.id)=${id}));`;
+    const query2 = `SELECT tb_reportes_comisarios.id AS idReporte, IF(tb_sim_plat_codplat.isVisible=0,tb_pilotos.nombreCorto,CONCAT(tb_pilotos.nombreCorto,' (',tb_pilotos_id_sim.idSimPiloto,')')) AS nombrePiloto, tb_rol_involucrados.nombre AS Rol, CONCAT('https://multimedia.nitrosimracing.com.co/plantillasphp/previewrepeticionespop.php?&id=',tb_repeticiones.id) as Rep FROM ( ( ( ( ( tb_calendario INNER JOIN( tb_divisiones INNER JOIN tb_torneos ON tb_divisiones.idTorneo = tb_torneos.idTorneo ) ON tb_calendario.idDivision = tb_divisiones.id ) INNER JOIN( tb_reportes_comisarios INNER JOIN( ( tb_involucrados_sanciones INNER JOIN tb_pilotos ON tb_involucrados_sanciones.idPiloto = tb_pilotos.id ) INNER JOIN tb_rol_involucrados ON tb_involucrados_sanciones.idRolInvolucrado = tb_rol_involucrados.id ) ON tb_reportes_comisarios.id = tb_involucrados_sanciones.idReporte ) ON tb_calendario.id = tb_reportes_comisarios.idCalendario ) INNER JOIN tb_inscripciones ON( tb_involucrados_sanciones.idPiloto = tb_inscripciones.idPiloto ) AND( tb_torneos.idTorneo = tb_inscripciones.idTorneo ) ) INNER JOIN tb_pilotos_id_sim ON tb_inscripciones.idPilotoIdSim = tb_pilotos_id_sim.id ) INNER JOIN tb_sim_plat_codplat ON tb_pilotos_id_sim.idSimCodPlataforma = tb_sim_plat_codplat.id ) LEFT JOIN tb_repeticiones ON( tb_reportes_comisarios.idCalendario = tb_repeticiones.idCalendario ) AND( tb_involucrados_sanciones.idPiloto = tb_repeticiones.idPiloto ) WHERE ( ( (tb_reportes_comisarios.id) =  ${id}) ) ORDER BY tb_involucrados_sanciones.idRolInvolucrado;`;
     const query3 = `SELECT tb_descargos_involucrados.fechaCreacion, tb_pilotos.nombreCorto AS nombrePiloto, tb_descargos_involucrados.descargo, tb_rol_involucrados.nombre AS Rol FROM (((tb_reportes_comisarios INNER JOIN tb_involucrados_sanciones ON tb_reportes_comisarios.id = tb_involucrados_sanciones.idReporte) INNER JOIN tb_descargos_involucrados ON tb_involucrados_sanciones.id = tb_descargos_involucrados.idInvolucradoSancion) INNER JOIN tb_pilotos ON tb_involucrados_sanciones.idPiloto = tb_pilotos.id) INNER JOIN tb_rol_involucrados ON tb_involucrados_sanciones.idRolInvolucrado = tb_rol_involucrados.id WHERE (((tb_reportes_comisarios.id)=${id})) ORDER BY tb_descargos_involucrados.fechaCreacion DESC;`;
     const query4 = `SELECT tb_evidencias_reportes.fechaCreacion, tb_pilotos.nombreCorto AS nombrePiloto, tb_rol_involucrados.nombre AS Rol, tb_evidencias_reportes.linkEvidencia FROM (((tb_reportes_comisarios INNER JOIN tb_involucrados_sanciones ON tb_reportes_comisarios.id = tb_involucrados_sanciones.idReporte) INNER JOIN tb_pilotos ON tb_involucrados_sanciones.idPiloto = tb_pilotos.id) INNER JOIN tb_rol_involucrados ON tb_involucrados_sanciones.idRolInvolucrado = tb_rol_involucrados.id) INNER JOIN tb_evidencias_reportes ON tb_involucrados_sanciones.id = tb_evidencias_reportes.idInvolucradoSancion WHERE (((tb_reportes_comisarios.id)=${id})) ORDER BY tb_evidencias_reportes.fechaCreacion DESC;`;
     try {
@@ -491,4 +489,24 @@ const getSistemaDePuntosMasInfo = (req, res) => __awaiter(void 0, void 0, void 0
     }
 });
 exports.getSistemaDePuntosMasInfo = getSistemaDePuntosMasInfo;
+const getConfirmacion = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { idCalendario, idPiloto } = req.params;
+    const query = `SELECT CASE WHEN COUNT(*) = 0 THEN 3 ELSE MAX(tb_parrilla_calendario.estaConfirmado) END AS estaConfirmado, CASE WHEN COUNT(*) = 0 THEN 'Sin confirmar' WHEN MAX(tb_parrilla_calendario.estaConfirmado) = 0 THEN 'No asistirá' WHEN MAX(tb_parrilla_calendario.estaConfirmado) = 1 THEN 'Sí asistirá' WHEN MAX(tb_parrilla_calendario.estaConfirmado) = 3 THEN 'Sin confirmar' END AS Mensaje FROM tb_parrilla_calendario WHERE tb_parrilla_calendario.idCalendario = ${idCalendario} AND tb_parrilla_calendario.idPiloto = ${idPiloto};`;
+    const resultados = yield models.tb_parrilla_calendario.sequelize.query(query, {
+        type: sequelize_1.QueryTypes.SELECT,
+    });
+    if (resultados.length > 0) {
+        return res.status(200).json({
+            ok: true,
+            resultados: resultados[0],
+        });
+    }
+    else {
+        return res.status(404).json({
+            ok: false,
+            msg: "No cuentas con resultados",
+        });
+    }
+});
+exports.getConfirmacion = getConfirmacion;
 //# sourceMappingURL=cards.js.map

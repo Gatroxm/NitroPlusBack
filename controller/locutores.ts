@@ -249,3 +249,56 @@ export const updatetb_salas_transmision = async (req: Request, res: Response) =>
     });
   }
 };
+
+
+export const SelectorMensaje =  async (req: Request, res: Response) => {
+  const query = `SELECT tb_mensajes_radio.nombre, tb_mensajes_radio.id FROM tb_mensajes_radio ORDER BY tb_mensajes_radio.nombre;`;
+
+  try {
+    const respuesta =
+      await models.tb_mensajes_radio.sequelize.query(query, {
+        type: QueryTypes.SELECT,
+      });
+    return res.json({
+      ok: true,
+      respuesta,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+}
+export const insertTbRadioTransmisores =  async (req: Request, res: Response) => {
+  const {
+    idSala,
+    idPiloto,
+    idMensaje,
+    personalizadoPiloto,
+    personalizadoEquipo,
+} = req.body;
+
+  try {
+    const respuesta =
+      await models.tb_radio_transmisiones.update({
+        idPiloto: idPiloto,
+        idMensaje: idMensaje,
+        personalizadoPiloto: personalizadoPiloto,
+        personalizadoEquipo: personalizadoEquipo,
+      }, {
+        where:{
+          idSala: idSala
+        }
+      })
+    return res.json({
+      ok: true,
+      respuesta,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+}

@@ -16,6 +16,7 @@ import {
     getSancionadosMasInfo,
     getCalendarioDelTornaoMasInfo,
     getSistemaDePuntosMasInfo,
+    getConfirmacion,
  } from "../controller/cards";
 
 const routerCards = Router();
@@ -35,6 +36,7 @@ routerCards.get('/modal-reportes-dela-fecha/:id', ModaltablaReportesDeLaFecha);
 routerCards.get('/getSancionadosMasInfo/:id', getSancionadosMasInfo); 
 routerCards.get('/getSistemaDePuntosMasInfo/:id', getSistemaDePuntosMasInfo); 
 routerCards.get('/getCalendarioDelTornaoMasInfo/:id', getCalendarioDelTornaoMasInfo); 
+routerCards.get('/getConfirmacion/:idCalendario/:idPiloto', getConfirmacion); 
 routerCards.post('/insetb_camaras_transmisiones', insetb_camaras_transmisiones); 
 
 export default routerCards;

@@ -157,6 +157,7 @@ const createRegistrosMasivosTblResultados = (req, res) => __awaiter(void 0, void
         }
     }
     catch (error) {
+        console.log(error);
         return res.status(500).json({
             ok: true,
             msg: "Filas Registradas"
