@@ -143,13 +143,10 @@ const getEquipoDigitadores = (req, res) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.getEquipoDigitadores = getEquipoDigitadores;
 const createRegistrosMasivosTblResultados = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { idCalendario } = req.body[0];
     try {
-        const respuesta = yield models.tb_resultados.bulkCreate(req.body);
+        const respuesta = yield models.tb_resultados_manual.bulkCreate(req.body);
         if (respuesta.length > 0) {
-            /** Procedimientos almacenados  */
-            const query = `CALL ajustar_datos_tb_resultados (${idCalendario});`;
-            const proces1 = yield models.tb_resultados.sequelize.query(query, { type: sequelize_1.QueryTypes.SELECT });
+            const insert2 = yield models.tb_control_digitacion_resultados.bulkCreate(req.body);
             return res.status(200).json({
                 ok: true,
                 msg: "Filas Registradas"

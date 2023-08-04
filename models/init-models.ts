@@ -100,6 +100,7 @@ var _tb_resultados = require("./tb_resultados");
 var _tb_resultados_clasificatorios = require("./tb_resultados_clasificatorios");
 var _tb_resultados_eventos_clasificatorios = require("./tb_resultados_eventos_clasificatorios");
 var _tb_resultados_subtramos = require("./tb_resultados_subtramos");
+var _tb_resultados_manual = require("./tb_resultados_manual");
 var _tb_rol_involucrados = require("./tb_rol_involucrados");
 var _tb_roles = require("./tb_roles");
 var _tb_roles_discord_pilotos = require("./tb_roles_discord_pilotos");
@@ -135,6 +136,9 @@ var _tb_overlay_transmisiones = require("./tb_overlay_transmisiones");
 var _tb_radio_transmisiones = require("./tb_radio_transmisiones");
 var _tb_mensajes_radio = require("./tb_mensajes_radio");
 var _tb_tipos_overlay = require("./tb_tipos_overlay");
+var _tb_control_digitacion_resultados = require("./tb_control_digitacion_resultados.js")
+var _tb_ingreso_sanciones = require("./tb_ingreso_sanciones.js")
+var _tb_control_sanciones = require("./tb_control_sanciones.js")
 
 
 export const  initModels = (sequelize:any = connection.default) => {
@@ -241,6 +245,7 @@ export const  initModels = (sequelize:any = connection.default) => {
   var tb_resultados_clasificatorios = _tb_resultados_clasificatorios(sequelize, DataTypes);
   var tb_resultados_eventos_clasificatorios = _tb_resultados_eventos_clasificatorios(sequelize, DataTypes);
   var tb_resultados_subtramos = _tb_resultados_subtramos(sequelize, DataTypes);
+  var tb_resultados_manual = _tb_resultados_manual(sequelize, DataTypes);
   var tb_rol_involucrados = _tb_rol_involucrados(sequelize, DataTypes);
   var tb_roles = _tb_roles(sequelize, DataTypes);
   var tb_roles_discord_pilotos = _tb_roles_discord_pilotos(sequelize, DataTypes);
@@ -272,6 +277,9 @@ export const  initModels = (sequelize:any = connection.default) => {
   var tb_torneos = _tb_torneos(sequelize, DataTypes);
   var tb_webhooks_discord = _tb_webhooks_discord(sequelize, DataTypes);
   var tb_tipos_overlay = _tb_tipos_overlay(sequelize, DataTypes);
+  var tb_control_digitacion_resultados = _tb_control_digitacion_resultados(sequelize, DataTypes);
+  var tb_ingreso_sanciones = _tb_ingreso_sanciones(sequelize, DataTypes);
+  var tb_control_sanciones = _tb_control_sanciones(sequelize, DataTypes);
 
   tb_conceptos_comisarios.belongsTo(tb_asignacion_comisario, { as: "idAsignacionComisario_tb_asignacion_comisario", foreignKey: "idAsignacionComisario"});
   tb_asignacion_comisario.hasMany(tb_conceptos_comisarios, { as: "tb_conceptos_comisarios", foreignKey: "idAsignacionComisario"});
@@ -993,6 +1001,7 @@ export const  initModels = (sequelize:any = connection.default) => {
     tb_resultados_clasificatorios,
     tb_resultados_eventos_clasificatorios,
     tb_resultados_subtramos,
+    tb_resultados_manual,
     tb_rol_involucrados,
     tb_roles,
     tb_roles_discord_pilotos,
@@ -1026,7 +1035,10 @@ export const  initModels = (sequelize:any = connection.default) => {
     tb_overlay_transmisiones,
     tb_radio_transmisiones,
     tb_mensajes_radio,
-    tb_tipos_overlay
+    tb_tipos_overlay,
+    tb_control_digitacion_resultados,
+    tb_ingreso_sanciones,
+    tb_control_sanciones
   };
 }
 

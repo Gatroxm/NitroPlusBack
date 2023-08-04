@@ -126,15 +126,12 @@ export const getEquipoDigitadores = async (req: Request, res: Response) => {
 }
 
 export const createRegistrosMasivosTblResultados = async (req: Request, res: Response) => { 
-    const {idCalendario} = req.body[0]
     try {
-        const respuesta = await models.tb_resultados.bulkCreate(req.body);
-        if(respuesta.length > 0){
 
-            /** Procedimientos almacenados  */
-            const query = `CALL ajustar_datos_tb_resultados (${idCalendario});`
-            const proces1 = await models.tb_resultados.sequelize.query(query, { type: QueryTypes.SELECT });
-            return res.status(200).json({ 
+        const respuesta = await models.tb_resultados_manual.bulkCreate(req.body);
+        if(respuesta.length > 0){
+            const insert2 = await models.tb_control_digitacion_resultados.bulkCreate(req.body);
+            return res.status(200).json({   
                 ok:true,
                 msg: "Filas Registradas"
             });
