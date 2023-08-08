@@ -11,7 +11,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
-        idPiloto: {
+        idInvolucrado: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },

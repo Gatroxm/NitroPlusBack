@@ -305,41 +305,6 @@ export const getTablaSanciones = async (req: Request, res: Response) => {
 
 }
 
-export const callAplicarSancion = async  (req: Request, res: Response) => {
-
-  const { 
-    idReporte,
-    idInvolucrado,
-    idSancion,
-    idGravedad,
-    idPiloto
-  } = req.body;
-
-  const query = `CALL aplicar_sancion(${idReporte},${idInvolucrado},${idSancion},${idGravedad},${idPiloto})`;
-  try {
-      const resultados = await models.tb_conceptos_comisarios.sequelize.query(query, {
-        type: QueryTypes.SELECT,
-      });
-      if (resultados.length > 0) {
-        return res.status(200).json({
-          ok: true,
-          resultados,
-        });
-      } else {
-        return res.status(404).json({
-          ok: false,
-          msg: "No cuentas con resultados",
-        });
-      }
-    } catch (error) {
-      return res.status(500).json({
-        ok: false,
-        error: error,
-      });
-    }
-    
-}
-
 export const insertInvolucrado = async (req: Request, res: Response) => {
   const { idPiloto, idReporte,  } = req.body;
 

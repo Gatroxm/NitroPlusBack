@@ -13,7 +13,6 @@ routerReportesComisarios.get('/sanciones/:id', reportesComisarios_1.pestannaSanc
 routerReportesComisarios.get('/conceptos/:id', reportesComisarios_1.pestannaConceptos);
 routerReportesComisarios.get('/reportes-pendientes-lideres/:id', reportesComisarios_1.pestannaConceptosReportesPendientesLideres);
 routerReportesComisarios.get('/getTablaSanciones', reportesComisarios_1.getTablaSanciones);
-routerReportesComisarios.post('/call-aplica-sancion', reportesComisarios_1.callAplicarSancion);
 routerReportesComisarios.post('/insertInvolucrado', reportesComisarios_1.insertInvolucrado);
 routerReportesComisarios.get('/getPilotosInvolucrados/:id', reportesComisarios_1.getPilotosInvolucrados);
 exports.default = routerReportesComisarios;
